@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "API接口测试",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f5f5",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50
+}

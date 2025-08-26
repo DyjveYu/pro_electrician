@@ -1,0 +1,237 @@
+<!--电工端工单大厅页面-->
+<view class="dashboard-container">
+  <!-- 顶部统计卡片 -->
+  <view class="stats-section">
+    <view class="stats-card">
+      <view class="stats-item">
+        <text class="stats-number">{{stats.todayOrders}}</text>
+        <text class="stats-label">今日工单</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-number">{{stats.monthIncome}}</text>
+        <text class="stats-label">本月收入</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-number">{{stats.completedOrders}}</text>
+        <text class="stats-label">已完成</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-number">{{stats.rating}}</text>
+        <text class="stats-label">评分</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-section">
+    <scroll-view class="filter-scroll" scroll-x="true">
+      <view class="filter-item {{currentFilter === 'all' ? 'active' : ''}}" 
+            bindtap="onFilterChange" data-filter="all">
+        <text>全部工单</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'nearby' ? 'active' : ''}}" 
+            bindtap="onFilterChange" data-filter="nearby">
+        <text>附近工单</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'urgent' ? 'active' : ''}}" 
+            bindtap="onFilterChange" data-filter="urgent">
+        <text>紧急工单</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'high_price' ? 'active' : ''}}" 
+            bindtap="onFilterChange" data-filter="high_price">
+        <text>高价工单</text>
+      </view>
+    </scroll-view>
+    
+    <!-- 排序和筛选按钮 -->
+    <view class="filter-actions">
+      <view class="sort-btn" bindtap="onSortChange">
+        <text class="iconfont icon-sort"></text>
+        <text>{{sortText}}</text>
+      </view>
+      <view class="location-btn" bindtap="onLocationFilter">
+        <text class="iconfont icon-location"></text>
+        <text>{{locationText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 工单列表 -->
+  <view class="orders-section">
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-state">
+      <view class="loading-spinner"></view>
+      <text>加载中...</text>
+    </view>
+
+    <!-- 工单列表 -->
+    <view wx:else class="orders-list">
+      <view wx:for="{{orderList}}" wx:key="id" class="order-item" 
+            bindtap="onOrderDetail" data-id="{{item.id}}">
+        <!-- 工单头部 -->
+        <view class="order-header">
+          <view class="order-type">
+            <text class="type-icon">{{item.serviceTypeIcon}}</text>
+            <text class="type-name">{{item.serviceTypeName}}</text>
+          </view>
+          <view class="order-status {{item.statusClass}}">
+            <text>{{item.statusText}}</text>
+          </view>
+        </view>
+
+        <!-- 工单内容 -->
+        <view class="order-content">
+          <view class="order-info">
+            <view class="info-row">
+              <text class="iconfont icon-time"></text>
+              <text class="info-text">{{item.createTimeText}}</text>
+              <text wx:if="{{item.isUrgent}}" class="urgent-tag">紧急</text>
+            </view>
+            <view class="info-row">
+              <text class="iconfont icon-location"></text>
+              <text class="info-text">{{item.address}}</text>
+              <text class="distance">{{item.distance}}</text>
+            </view>
+            <view class="info-row">
+              <text class="iconfont icon-user"></text>
+              <text class="info-text">{{item.customerName}}</text>
+              <view class="customer-rating">
+                <text class="iconfont icon-star"></text>
+                <text>{{item.customerRating}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 故障描述 -->
+          <view class="order-description">
+            <text>{{item.description}}</text>
+          </view>
+
+          <!-- 问题图片 -->
+          <view wx:if="{{item.images && item.images.length > 0}}" class="order-images">
+            <image wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" 
+                   class="problem-image" src="{{img}}" mode="aspectFill"
+                   bindtap="onPreviewImage" data-current="{{img}}" data-urls="{{item.images}}"></image>
+          </view>
+        </view>
+
+        <!-- 工单底部 -->
+        <view class="order-footer">
+          <view class="price-info">
+            <text class="price-label">预估费用：</text>
+            <text class="price-amount">¥{{item.estimatedPrice}}</text>
+          </view>
+          
+          <!-- 操作按钮 -->
+          <view class="order-actions">
+            <button wx:if="{{item.canAccept}}" class="action-btn primary" 
+                    bindtap="onAcceptOrder" data-id="{{item.id}}">
+              立即接单
+            </button>
+            <button wx:if="{{item.canContact}}" class="action-btn secondary" 
+                    bindtap="onContactCustomer" data-phone="{{item.customerPhone}}">
+              联系客户
+            </button>
+            <button class="action-btn secondary" 
+                    bindtap="onOrderDetail" data-id="{{item.id}}">
+              查看详情
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && orderList.length === 0}}" class="empty-state">
+      <image class="empty-icon" src="/images/empty-orders.png" mode="aspectFit"></image>
+      <text class="empty-text">暂无可接工单</text>
+      <text class="empty-tip">刷新试试或调整筛选条件</text>
+      <button class="refresh-btn" bindtap="onRefresh">刷新</button>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{!loading && orderList.length > 0}}" class="load-more">
+      <view wx:if="{{hasMore}}" class="load-more-btn" bindtap="onLoadMore">
+        <text>加载更多</text>
+      </view>
+      <view wx:else class="no-more">
+        <text>没有更多工单了</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部快捷操作 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="onMyOrders">
+      <text class="iconfont icon-list"></text>
+      <text>我的工单</text>
+    </view>
+    <view class="action-item" bindtap="onEarnings">
+      <text class="iconfont icon-money"></text>
+      <text>收益统计</text>
+    </view>
+    <view class="action-item" bindtap="onProfile">
+      <text class="iconfont icon-user"></text>
+      <text>个人中心</text>
+    </view>
+  </view>
+</view>
+
+<!-- 排序选择弹窗 -->
+<view wx:if="{{showSortModal}}" class="modal-overlay" bindtap="onCloseSortModal">
+  <view class="sort-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">排序方式</text>
+      <text class="modal-close" bindtap="onCloseSortModal">×</text>
+    </view>
+    <view class="sort-options">
+      <view class="sort-option {{sortType === 'time' ? 'active' : ''}}" 
+            bindtap="onSelectSort" data-type="time">
+        <text>按时间排序</text>
+        <text wx:if="{{sortType === 'time'}}" class="iconfont icon-check"></text>
+      </view>
+      <view class="sort-option {{sortType === 'distance' ? 'active' : ''}}" 
+            bindtap="onSelectSort" data-type="distance">
+        <text>按距离排序</text>
+        <text wx:if="{{sortType === 'distance'}}" class="iconfont icon-check"></text>
+      </view>
+      <view class="sort-option {{sortType === 'price' ? 'active' : ''}}" 
+            bindtap="onSelectSort" data-type="price">
+        <text>按价格排序</text>
+        <text wx:if="{{sortType === 'price'}}" class="iconfont icon-check"></text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 位置筛选弹窗 -->
+<view wx:if="{{showLocationModal}}" class="modal-overlay" bindtap="onCloseLocationModal">
+  <view class="location-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">选择服务范围</text>
+      <text class="modal-close" bindtap="onCloseLocationModal">×</text>
+    </view>
+    <view class="location-options">
+      <view class="location-option {{locationRange === 'all' ? 'active' : ''}}" 
+            bindtap="onSelectLocation" data-range="all">
+        <text>不限距离</text>
+        <text wx:if="{{locationRange === 'all'}}" class="iconfont icon-check"></text>
+      </view>
+      <view class="location-option {{locationRange === '1km' ? 'active' : ''}}" 
+            bindtap="onSelectLocation" data-range="1km">
+        <text>1公里内</text>
+        <text wx:if="{{locationRange === '1km'}}" class="iconfont icon-check"></text>
+      </view>
+      <view class="location-option {{locationRange === '3km' ? 'active' : ''}}" 
+            bindtap="onSelectLocation" data-range="3km">
+        <text>3公里内</text>
+        <text wx:if="{{locationRange === '3km'}}" class="iconfont icon-check"></text>
+      </view>
+      <view class="location-option {{locationRange === '5km' ? 'active' : ''}}" 
+            bindtap="onSelectLocation" data-range="5km">
+        <text>5公里内</text>
+        <text wx:if="{{locationRange === '5km'}}" class="iconfont icon-check"></text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,238 @@
+<!--电工端个人中心页面-->
+<view class="profile-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 主要内容 -->
+  <view wx:else class="profile-content">
+    <!-- 电工信息卡片 -->
+    <view class="electrician-info-card">
+      <view class="info-header">
+        <view class="avatar-container" bindtap="onChooseAvatar">
+          <image class="avatar" src="{{electricianInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <view class="avatar-edit-icon">📷</view>
+        </view>
+        <view class="info-content">
+          <view class="name-row">
+            <text class="name">{{electricianInfo.name || '未设置姓名'}}</text>
+            <view class="status-badge status-{{electricianInfo.status}}">
+              <text class="status-text">{{electricianInfo.statusText}}</text>
+            </view>
+          </view>
+          <view class="phone">{{electricianInfo.phone || '未绑定手机'}}</view>
+          <view class="level-row">
+            <text class="level">{{electricianInfo.levelText}}</text>
+            <view class="rating">
+              <text class="rating-score">{{electricianInfo.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="service-area">服务区域：{{electricianInfo.serviceArea || '未设置'}}</view>
+        </view>
+      </view>
+      
+      <!-- 认证信息 -->
+      <view class="certification-info">
+        <view class="cert-item">
+          <text class="cert-label">身份认证</text>
+          <text class="cert-status cert-{{electricianInfo.idVerified ? 'verified' : 'unverified'}}">{{electricianInfo.idVerified ? '已认证' : '未认证'}}</text>
+        </view>
+        <view class="cert-item">
+          <text class="cert-label">技能认证</text>
+          <text class="cert-status cert-{{electricianInfo.skillVerified ? 'verified' : 'unverified'}}">{{electricianInfo.skillVerified ? '已认证' : '未认证'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 电工统计 -->
+    <view class="electrician-stats">
+      <view class="stat-item" bindtap="onViewOrders" data-status="all">
+        <text class="stat-number">{{electricianStats.totalOrders}}</text>
+        <text class="stat-label">总工单</text>
+      </view>
+      <view class="stat-item" bindtap="onViewOrders" data-status="completed">
+        <text class="stat-number">{{electricianStats.completedOrders}}</text>
+        <text class="stat-label">已完成</text>
+      </view>
+      <view class="stat-item" bindtap="onViewEarnings">
+        <text class="stat-number">¥{{electricianStats.totalEarnings}}</text>
+        <text class="stat-label">总收益</text>
+      </view>
+      <view class="stat-item" bindtap="onViewEarnings">
+        <text class="stat-number">¥{{electricianStats.monthEarnings}}</text>
+        <text class="stat-label">本月收益</text>
+      </view>
+    </view>
+
+    <!-- 快捷操作 -->
+    <view class="quick-actions">
+      <view class="action-item" bindtap="onViewOrders" data-status="accepted">
+        <view class="action-icon">📋</view>
+        <text class="action-text">待服务</text>
+        <view wx:if="{{electricianStats.acceptedOrders > 0}}" class="action-badge">{{electricianStats.acceptedOrders}}</view>
+      </view>
+      <view class="action-item" bindtap="onViewOrders" data-status="in_progress">
+        <view class="action-icon">🔧</view>
+        <text class="action-text">进行中</text>
+        <view wx:if="{{electricianStats.inProgressOrders > 0}}" class="action-badge">{{electricianStats.inProgressOrders}}</view>
+      </view>
+      <view class="action-item" bindtap="onViewEarnings">
+        <view class="action-icon">💰</view>
+        <text class="action-text">收益统计</text>
+      </view>
+      <view class="action-item" bindtap="onViewDashboard">
+        <view class="action-icon">🏠</view>
+        <text class="action-text">工单大厅</text>
+      </view>
+    </view>
+
+    <!-- 业务管理 -->
+    <view class="menu-section">
+      <view class="section-title">业务管理</view>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="onViewOrders">
+          <view class="menu-icon">📝</view>
+          <text class="menu-text">我的工单</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onViewEarnings">
+          <view class="menu-icon">📊</view>
+          <text class="menu-text">收益统计</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onViewCustomers">
+          <view class="menu-icon">👥</view>
+          <text class="menu-text">客户管理</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onViewSchedule">
+          <view class="menu-icon">📅</view>
+          <text class="menu-text">服务日程</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 服务管理 -->
+    <view class="menu-section">
+      <view class="section-title">服务管理</view>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="onManageServices">
+          <view class="menu-icon">⚡</view>
+          <text class="menu-text">服务项目</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onManageArea">
+          <view class="menu-icon">📍</view>
+          <text class="menu-text">服务区域</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onManagePrice">
+          <view class="menu-icon">💵</view>
+          <text class="menu-text">价格设置</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onViewReviews">
+          <view class="menu-icon">⭐</view>
+          <text class="menu-text">客户评价</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 工具与帮助 -->
+    <view class="menu-section">
+      <view class="section-title">工具与帮助</view>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="onViewCertification">
+          <view class="menu-icon">🎓</view>
+          <text class="menu-text">认证中心</text>
+          <view wx:if="{{!electricianInfo.idVerified || !electricianInfo.skillVerified}}" class="menu-badge">!</view>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onContactSupport">
+          <view class="menu-icon">💬</view>
+          <text class="menu-text">联系客服</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onViewHelp">
+          <view class="menu-icon">❓</view>
+          <text class="menu-text">帮助中心</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onViewAgreement">
+          <view class="menu-icon">📄</view>
+          <text class="menu-text">服务协议</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 设置 -->
+    <view class="menu-section">
+      <view class="section-title">设置</view>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="onAccountSettings">
+          <view class="menu-icon">⚙️</view>
+          <text class="menu-text">账户设置</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onNotificationSettings">
+          <view class="menu-icon">🔔</view>
+          <text class="menu-text">消息通知</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onPrivacySettings">
+          <view class="menu-icon">🔒</view>
+          <text class="menu-text">隐私设置</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onAbout">
+          <view class="menu-icon">ℹ️</view>
+          <text class="menu-text">关于我们</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 角色切换 -->
+    <view class="role-switch">
+      <view class="switch-item" bindtap="onSwitchToUser">
+        <view class="switch-icon">👤</view>
+        <view class="switch-content">
+          <text class="switch-title">切换到用户端</text>
+          <text class="switch-desc">体验下单服务</text>
+        </view>
+        <text class="switch-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 退出登录 -->
+    <view class="logout-section">
+      <view class="logout-btn" bindtap="onLogout">
+        <text class="logout-text">退出登录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 头像选择弹窗 -->
+  <view wx:if="{{showAvatarModal}}" class="avatar-modal" bindtap="onCloseAvatarModal">
+    <view class="avatar-modal-content" catchtap="">
+      <view class="modal-title">选择头像</view>
+      <view class="avatar-options">
+        <view class="avatar-option" bindtap="onChooseFromAlbum">
+          <view class="option-icon">📷</view>
+          <text class="option-text">从相册选择</text>
+        </view>
+        <view class="avatar-option" bindtap="onTakePhoto">
+          <view class="option-icon">📸</view>
+          <text class="option-text">拍照</text>
+        </view>
+      </view>
+      <view class="modal-cancel" bindtap="onCloseAvatarModal">取消</view>
+    </view>
+  </view>
+</view>

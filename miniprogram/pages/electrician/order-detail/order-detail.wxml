@@ -1,0 +1,337 @@
+<!--电工端工单详情页面-->
+<view class="order-detail-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+
+  <!-- 工单详情内容 -->
+  <view wx:else class="detail-content">
+    <!-- 状态卡片 -->
+    <view class="status-card {{orderInfo.statusClass}}">
+      <view class="status-header">
+        <view class="status-icon">
+          <text class="iconfont {{orderInfo.statusIcon}}"></text>
+        </view>
+        <view class="status-info">
+          <text class="status-text">{{orderInfo.statusText}}</text>
+          <text class="status-desc">{{orderInfo.statusDesc}}</text>
+        </view>
+      </view>
+      
+      <!-- 进度条 -->
+      <view wx:if="{{orderInfo.showProgress}}" class="progress-bar">
+        <view class="progress-track">
+          <view class="progress-fill" style="width: {{orderInfo.progressPercent}}%"></view>
+        </view>
+        <view class="progress-steps">
+          <view class="step {{orderInfo.step >= 1 ? 'active' : ''}}">
+            <text>接单</text>
+          </view>
+          <view class="step {{orderInfo.step >= 2 ? 'active' : ''}}">
+            <text>服务中</text>
+          </view>
+          <view class="step {{orderInfo.step >= 3 ? 'active' : ''}}">
+            <text>已完成</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Tab切换 -->
+    <view class="tab-section">
+      <view class="tab-item {{currentTab === 'order' ? 'active' : ''}}" 
+            bindtap="onTabChange" data-tab="order">
+        <text>工单信息</text>
+      </view>
+      <view class="tab-item {{currentTab === 'customer' ? 'active' : ''}}" 
+            bindtap="onTabChange" data-tab="customer">
+        <text>客户信息</text>
+      </view>
+      <view class="tab-item {{currentTab === 'repair' ? 'active' : ''}}" 
+            bindtap="onTabChange" data-tab="repair">
+        <text>维修记录</text>
+      </view>
+    </view>
+
+    <!-- 工单信息 -->
+    <view wx:if="{{currentTab === 'order'}}" class="tab-content">
+      <!-- 基本信息 -->
+      <view class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-info"></text>
+          <text class="card-title">基本信息</text>
+        </view>
+        <view class="info-list">
+          <view class="info-item">
+            <text class="info-label">服务类型</text>
+            <text class="info-value">{{orderInfo.serviceTypeName}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">创建时间</text>
+            <text class="info-value">{{orderInfo.createTimeText}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">预约时间</text>
+            <text class="info-value">{{orderInfo.appointmentTimeText}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">紧急程度</text>
+            <text class="info-value {{orderInfo.isUrgent ? 'urgent' : ''}}">{{orderInfo.urgencyText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 服务地址 -->
+      <view class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-location"></text>
+          <text class="card-title">服务地址</text>
+          <text class="card-action" bindtap="onViewLocation">查看位置</text>
+        </view>
+        <view class="address-info">
+          <text class="address-text">{{orderInfo.address}}</text>
+          <text class="address-detail">{{orderInfo.addressDetail}}</text>
+          <view class="distance-info">
+            <text class="iconfont icon-navigation"></text>
+            <text>距离您约 {{orderInfo.distance}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 故障描述 -->
+      <view class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-edit"></text>
+          <text class="card-title">故障描述</text>
+        </view>
+        <view class="description-content">
+          <text>{{orderInfo.description}}</text>
+        </view>
+      </view>
+
+      <!-- 问题图片 -->
+      <view wx:if="{{orderInfo.images && orderInfo.images.length > 0}}" class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-image"></text>
+          <text class="card-title">问题图片</text>
+        </view>
+        <view class="images-grid">
+          <image wx:for="{{orderInfo.images}}" wx:key="*this" 
+                 class="problem-image" src="{{item}}" mode="aspectFill"
+                 bindtap="onPreviewImage" data-current="{{item}}" data-urls="{{orderInfo.images}}"></image>
+        </view>
+      </view>
+
+      <!-- 费用信息 -->
+      <view class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-money"></text>
+          <text class="card-title">费用信息</text>
+        </view>
+        <view class="price-info">
+          <view class="price-item">
+            <text class="price-label">预估费用</text>
+            <text class="price-value">¥{{orderInfo.estimatedPrice}}</text>
+          </view>
+          <view wx:if="{{orderInfo.actualPrice}}" class="price-item">
+            <text class="price-label">实际费用</text>
+            <text class="price-value highlight">¥{{orderInfo.actualPrice}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 客户信息 -->
+    <view wx:if="{{currentTab === 'customer'}}" class="tab-content">
+      <view class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-user"></text>
+          <text class="card-title">客户信息</text>
+        </view>
+        <view class="customer-info">
+          <view class="customer-avatar">
+            <image class="avatar-image" src="{{orderInfo.customerAvatar}}" mode="aspectFill"></image>
+          </view>
+          <view class="customer-details">
+            <text class="customer-name">{{orderInfo.customerName}}</text>
+            <view class="customer-rating">
+              <text class="iconfont icon-star"></text>
+              <text>{{orderInfo.customerRating}}</text>
+              <text class="rating-count">({{orderInfo.customerOrderCount}}单)</text>
+            </view>
+            <text class="customer-phone">{{orderInfo.customerPhone}}</text>
+          </view>
+          <view class="customer-actions">
+            <button class="action-btn" bindtap="onCallCustomer">
+              <text class="iconfont icon-phone"></text>
+              <text>拨打电话</text>
+            </button>
+            <button class="action-btn" bindtap="onChatCustomer">
+              <text class="iconfont icon-message"></text>
+              <text>发送消息</text>
+            </button>
+          </view>
+        </view>
+      </view>
+
+      <!-- 历史订单 -->
+      <view wx:if="{{customerOrders.length > 0}}" class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-history"></text>
+          <text class="card-title">历史合作</text>
+        </view>
+        <view class="history-orders">
+          <view wx:for="{{customerOrders}}" wx:key="id" class="history-item">
+            <view class="history-info">
+              <text class="history-type">{{item.serviceTypeName}}</text>
+              <text class="history-time">{{item.createTimeText}}</text>
+            </view>
+            <view class="history-rating">
+              <text class="iconfont icon-star"></text>
+              <text>{{item.rating}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 维修记录 -->
+    <view wx:if="{{currentTab === 'repair'}}" class="tab-content">
+      <!-- 服务时间 -->
+      <view wx:if="{{orderInfo.serviceTime}}" class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-clock"></text>
+          <text class="card-title">服务时间</text>
+        </view>
+        <view class="time-info">
+          <view class="time-item">
+            <text class="time-label">开始时间</text>
+            <text class="time-value">{{orderInfo.serviceStartTime}}</text>
+          </view>
+          <view wx:if="{{orderInfo.serviceEndTime}}" class="time-item">
+            <text class="time-label">结束时间</text>
+            <text class="time-value">{{orderInfo.serviceEndTime}}</text>
+          </view>
+          <view wx:if="{{orderInfo.serviceDuration}}" class="time-item">
+            <text class="time-label">服务时长</text>
+            <text class="time-value">{{orderInfo.serviceDuration}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 维修进度 -->
+      <view wx:if="{{repairProgress.length > 0}}" class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-tool"></text>
+          <text class="card-title">维修进度</text>
+        </view>
+        <view class="progress-timeline">
+          <view wx:for="{{repairProgress}}" wx:key="id" class="timeline-item">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <text class="timeline-time">{{item.timeText}}</text>
+              <text class="timeline-desc">{{item.description}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 维修报告 -->
+      <view wx:if="{{orderInfo.repairReport}}" class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-file"></text>
+          <text class="card-title">维修报告</text>
+        </view>
+        <view class="repair-report">
+          <text class="report-summary">{{orderInfo.repairReport.summary}}</text>
+          
+          <!-- 维修前后对比 -->
+          <view wx:if="{{orderInfo.repairReport.beforeImages || orderInfo.repairReport.afterImages}}" class="repair-comparison">
+            <view class="comparison-section">
+              <text class="section-title">维修前</text>
+              <view class="comparison-images">
+                <image wx:for="{{orderInfo.repairReport.beforeImages}}" wx:key="*this" 
+                       class="comparison-image" src="{{item}}" mode="aspectFill"
+                       bindtap="onPreviewImage" data-current="{{item}}" data-urls="{{orderInfo.repairReport.beforeImages}}"></image>
+              </view>
+            </view>
+            <view class="comparison-section">
+              <text class="section-title">维修后</text>
+              <view class="comparison-images">
+                <image wx:for="{{orderInfo.repairReport.afterImages}}" wx:key="*this" 
+                       class="comparison-image" src="{{item}}" mode="aspectFill"
+                       bindtap="onPreviewImage" data-current="{{item}}" data-urls="{{orderInfo.repairReport.afterImages}}"></image>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 客户评价 -->
+      <view wx:if="{{orderInfo.customerReview}}" class="info-card">
+        <view class="card-header">
+          <text class="iconfont icon-star"></text>
+          <text class="card-title">客户评价</text>
+        </view>
+        <view class="review-content">
+          <view class="review-rating">
+            <view class="rating-stars">
+              <text wx:for="{{5}}" wx:key="*this" 
+                    class="star {{index < orderInfo.customerReview.rating ? 'active' : ''}}">★</text>
+            </view>
+            <text class="rating-text">{{orderInfo.customerReview.rating}}.0分</text>
+          </view>
+          <text class="review-comment">{{orderInfo.customerReview.comment}}</text>
+          <text class="review-time">{{orderInfo.customerReview.timeText}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view wx:if="{{!loading}}" class="bottom-actions">
+    <!-- 已接单状态 -->
+    <block wx:if="{{orderInfo.status === 'accepted'}}">
+      <button class="action-button secondary" bindtap="onCallCustomer">
+        <text class="iconfont icon-phone"></text>
+        <text>联系客户</text>
+      </button>
+      <button class="action-button primary" bindtap="onStartService">
+        <text class="iconfont icon-play"></text>
+        <text>开始服务</text>
+      </button>
+    </block>
+    
+    <!-- 进行中状态 -->
+    <block wx:elif="{{orderInfo.status === 'in_progress'}}">
+      <button class="action-button secondary" bindtap="onUpdateProgress">
+        <text class="iconfont icon-edit"></text>
+        <text>更新进度</text>
+      </button>
+      <button class="action-button primary" bindtap="onCompleteService">
+        <text class="iconfont icon-check"></text>
+        <text>完成服务</text>
+      </button>
+    </block>
+    
+    <!-- 已完成状态 -->
+    <block wx:elif="{{orderInfo.status === 'completed'}}">
+      <button class="action-button secondary" bindtap="onCallCustomer">
+        <text class="iconfont icon-phone"></text>
+        <text>联系客户</text>
+      </button>
+      <button wx:if="{{!orderInfo.hasElectricianRating}}" class="action-button primary" bindtap="onRateCustomer">
+        <text class="iconfont icon-star"></text>
+        <text>评价客户</text>
+      </button>
+    </block>
+    
+    <!-- 通用操作 -->
+    <button wx:if="{{orderInfo.status !== 'cancelled'}}" class="action-button secondary" bindtap="onChatCustomer">
+      <text class="iconfont icon-message"></text>
+      <text>发消息</text>
+    </button>
+  </view>
+</view>

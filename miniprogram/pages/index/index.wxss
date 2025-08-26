@@ -1,0 +1,559 @@
+/* pages/index/index.wxss */
+
+.container {
+  padding: 0;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* 搜索栏 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  padding-top: calc(20rpx + env(safe-area-inset-top));
+}
+
+.search-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50rpx;
+  padding: 20rpx 30rpx;
+  margin-right: 20rpx;
+}
+
+.search-input .iconfont {
+  margin-right: 15rpx;
+  color: #999;
+  font-size: 32rpx;
+}
+
+.search-placeholder {
+  color: #999;
+  font-size: 28rpx;
+}
+
+.location-btn {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 30rpx;
+  padding: 15rpx 20rpx;
+  max-width: 200rpx;
+}
+
+.location-btn .iconfont {
+  margin-right: 8rpx;
+  color: white;
+  font-size: 24rpx;
+}
+
+.location-text {
+  color: white;
+  font-size: 24rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 开发者入口 */
+.dev-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  margin-left: 15rpx;
+  transition: all 0.3s ease;
+}
+
+.dev-btn:active {
+  transform: scale(0.9);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.dev-icon {
+  font-size: 28rpx;
+  color: white;
+}
+
+/* 用户类型切换 */
+.user-type-switch {
+  display: flex;
+  margin: 30rpx;
+  background-color: white;
+  border-radius: 50rpx;
+  padding: 8rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.switch-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  border-radius: 42rpx;
+  transition: all 0.3s ease;
+}
+
+.switch-item.active {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+}
+
+.switch-text {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+/* 通用样式 */
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30rpx;
+}
+
+.more-btn {
+  font-size: 26rpx;
+  color: #2196F3;
+  font-weight: normal;
+}
+
+.refresh-btn {
+  font-size: 32rpx;
+  color: #2196F3;
+}
+
+/* 服务分类 */
+.service-categories {
+  margin: 30rpx;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30rpx;
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  background-color: white;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.category-item:active {
+  transform: scale(0.95);
+}
+
+.category-icon {
+  font-size: 48rpx;
+  margin-bottom: 15rpx;
+}
+
+.category-name {
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+}
+
+/* 快速下单 */
+.quick-order {
+  margin: 30rpx;
+}
+
+.order-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+  border-radius: 20rpx;
+  padding: 40rpx 30rpx;
+  color: white;
+}
+
+.order-content {
+  flex: 1;
+}
+
+.order-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 10rpx;
+}
+
+.order-desc {
+  font-size: 26rpx;
+  opacity: 0.9;
+}
+
+.order-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 30rpx;
+  padding: 20rpx 30rpx;
+  font-size: 28rpx;
+}
+
+/* 附近电工 */
+.nearby-electricians {
+  margin: 30rpx;
+}
+
+.electrician-list {
+  white-space: nowrap;
+  padding-bottom: 20rpx;
+}
+
+.electrician-item {
+  display: inline-block;
+  width: 200rpx;
+  margin-right: 20rpx;
+  background-color: white;
+  border-radius: 20rpx;
+  padding: 30rpx 20rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  vertical-align: top;
+}
+
+.electrician-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-bottom: 15rpx;
+}
+
+.electrician-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.electrician-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8rpx;
+}
+
+.rating-text {
+  font-size: 24rpx;
+  color: #FF9800;
+  margin-right: 5rpx;
+}
+
+.rating-stars {
+  font-size: 20rpx;
+}
+
+.electrician-distance {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* 工单列表 */
+.my-orders,
+.available-orders,
+.my-work-orders {
+  margin: 30rpx;
+}
+
+.order-list {
+  background-color: white;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.order-item {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.order-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 20rpx;
+}
+
+.order-status {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  color: white;
+}
+
+.order-status.status-pending {
+  background-color: #FF9800;
+}
+
+.order-status.status-accepted {
+  background-color: #2196F3;
+}
+
+.order-status.status-in_progress {
+  background-color: #4CAF50;
+}
+
+.order-status.status-completed {
+  background-color: #9C27B0;
+}
+
+.order-status.status-cancelled {
+  background-color: #757575;
+}
+
+.order-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.order-time,
+.order-location {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.order-price {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #FF5722;
+}
+
+.order-distance {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 电工端样式 */
+.work-status {
+  margin: 30rpx;
+}
+
+.status-card {
+  background-color: white;
+  border-radius: 20rpx;
+  padding: 40rpx 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.status-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.status-switch {
+  transform: scale(1.2);
+}
+
+.status-info {
+  text-align: center;
+}
+
+.status-text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 今日数据 */
+.today-stats {
+  margin: 30rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+}
+
+.stat-item {
+  background-color: white;
+  border-radius: 20rpx;
+  padding: 40rpx 20rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.stat-number {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #2196F3;
+  margin-bottom: 10rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 80rpx 40rpx;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.empty-text {
+  font-size: 28rpx;
+}
+
+/* 登录提示 */
+.login-prompt {
+  margin: 100rpx 30rpx;
+}
+
+.prompt-card {
+  background-color: white;
+  border-radius: 30rpx;
+  padding: 80rpx 40rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 40rpx rgba(0, 0, 0, 0.1);
+}
+
+.prompt-icon {
+  font-size: 100rpx;
+  margin-bottom: 30rpx;
+}
+
+.prompt-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.prompt-desc {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 50rpx;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+  border-radius: 50rpx;
+  padding: 25rpx 60rpx;
+  font-size: 30rpx;
+  border: none;
+}
+
+.login-btn::after {
+  border: none;
+}
+
+/* 底部安全区域 */
+.safe-area-bottom {
+  height: env(safe-area-inset-bottom);
+  background-color: #f5f7fa;
+}
+
+/* 响应式适配 */
+@media (max-width: 375px) {
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 动画效果 */
+.order-item {
+  transition: background-color 0.2s ease;
+}
+
+.order-item:active {
+  background-color: #f8f9fa;
+}
+
+.electrician-item {
+  transition: transform 0.2s ease;
+}
+
+.electrician-item:active {
+  transform: scale(0.95);
+}
+
+/* 加载状态 */
+.loading {
+  text-align: center;
+  padding: 40rpx;
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 错误状态 */
+.error-state {
+  text-align: center;
+  padding: 80rpx 40rpx;
+  color: #f44336;
+}
+
+.error-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.error-text {
+  font-size: 28rpx;
+  margin-bottom: 30rpx;
+}
+
+.retry-btn {
+  background-color: #2196F3;
+  color: white;
+  border-radius: 30rpx;
+  padding: 20rpx 40rpx;
+  font-size: 26rpx;
+  border: none;
+}
+
+.retry-btn::after {
+  border: none;
+}

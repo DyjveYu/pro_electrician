@@ -1,0 +1,158 @@
+<!--pages/auth/login/login.wxml-->
+<view class="container">
+  <!-- 顶部装饰 -->
+  <view class="header">
+    <view class="header-bg"></view>
+    <view class="header-content">
+      <view class="logo">
+        <text class="logo-icon">⚡</text>
+        <text class="logo-text">电工维修平台</text>
+      </view>
+      <view class="welcome-text">欢迎使用专业电工服务</view>
+    </view>
+  </view>
+
+  <!-- 登录表单 -->
+  <view class="login-form">
+    <!-- 登录方式切换 -->
+    <view class="login-tabs">
+      <view class="tab-item {{loginType === 'wx' ? 'active' : ''}}" bindtap="switchLoginType" data-type="wx">
+        <text>微信登录</text>
+      </view>
+      <view class="tab-item {{loginType === 'phone' ? 'active' : ''}}" bindtap="switchLoginType" data-type="phone">
+        <text>手机登录</text>
+      </view>
+    </view>
+
+    <!-- 微信登录 -->
+    <view class="wx-login" wx:if="{{loginType === 'wx'}}">
+      <view class="login-tips">
+        <text class="tips-icon">ℹ️</text>
+        <text class="tips-text">使用微信账号快速登录</text>
+      </view>
+      
+      <button class="wx-login-btn" bindtap="onWxLogin" loading="{{wxLoginLoading}}">
+        <text class="btn-icon">📱</text>
+        <text class="btn-text">微信一键登录</text>
+      </button>
+      
+      <!-- 用户协议 -->
+      <view class="agreement">
+        <checkbox class="agreement-checkbox" checked="{{agreedToTerms}}" bindtap="toggleAgreement"></checkbox>
+        <text class="agreement-text">我已阅读并同意</text>
+        <text class="agreement-link" bindtap="showUserAgreement">《用户协议》</text>
+        <text class="agreement-text">和</text>
+        <text class="agreement-link" bindtap="showPrivacyPolicy">《隐私政策》</text>
+      </view>
+    </view>
+
+    <!-- 手机号登录 -->
+    <view class="phone-login" wx:if="{{loginType === 'phone'}}">
+      <!-- 手机号输入 -->
+      <view class="input-group">
+        <view class="input-label">
+          <text class="label-icon">📱</text>
+          <text class="label-text">手机号</text>
+        </view>
+        <input 
+          class="input-field" 
+          type="number" 
+          placeholder="请输入手机号" 
+          value="{{phoneNumber}}"
+          bindinput="onPhoneInput"
+          maxlength="11"
+        />
+      </view>
+
+      <!-- 验证码输入 -->
+      <view class="input-group">
+        <view class="input-label">
+          <text class="label-icon">🔐</text>
+          <text class="label-text">验证码</text>
+        </view>
+        <view class="code-input-wrapper">
+          <input 
+            class="input-field code-input" 
+            type="number" 
+            placeholder="请输入验证码" 
+            value="{{verifyCode}}"
+            bindinput="onCodeInput"
+            maxlength="6"
+          />
+          <button 
+            class="send-code-btn {{canSendCode ? '' : 'disabled'}}" 
+            bindtap="sendVerifyCode"
+            disabled="{{!canSendCode}}"
+          >
+            {{codeButtonText}}
+          </button>
+        </view>
+      </view>
+
+      <!-- 登录按钮 -->
+      <button 
+        class="phone-login-btn {{canLogin ? '' : 'disabled'}}" 
+        bindtap="onPhoneLogin"
+        loading="{{phoneLoginLoading}}"
+        disabled="{{!canLogin}}"
+      >
+        <text class="btn-text">登录</text>
+      </button>
+
+      <!-- 用户协议 -->
+      <view class="agreement">
+        <checkbox class="agreement-checkbox" checked="{{agreedToTerms}}" bindtap="toggleAgreement"></checkbox>
+        <text class="agreement-text">我已阅读并同意</text>
+        <text class="agreement-link" bindtap="showUserAgreement">《用户协议》</text>
+        <text class="agreement-text">和</text>
+        <text class="agreement-link" bindtap="showPrivacyPolicy">《隐私政策》</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他登录方式 -->
+  <view class="other-login">
+    <view class="divider">
+      <view class="divider-line"></view>
+      <text class="divider-text">其他登录方式</text>
+      <view class="divider-line"></view>
+    </view>
+    
+    <view class="other-methods">
+      <view class="method-item" bindtap="onGuestLogin">
+        <text class="method-icon">👤</text>
+        <text class="method-text">游客体验</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="footer">
+    <view class="footer-text">专业电工服务，安全可靠</view>
+    <view class="footer-version">版本 v1.0.0</view>
+  </view>
+</view>
+
+<!-- 用户协议弹窗 -->
+<view class="modal-overlay {{showAgreementModal ? 'show' : ''}}" bindtap="hideAgreementModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">{{agreementTitle}}</text>
+      <text class="modal-close" bindtap="hideAgreementModal">✕</text>
+    </view>
+    <scroll-view class="modal-body" scroll-y="true">
+      <text class="agreement-content">{{agreementContent}}</text>
+    </scroll-view>
+    <view class="modal-footer">
+      <button class="modal-btn" bindtap="hideAgreementModal">我知道了</button>
+    </view>
+  </view>
+</view>
+
+<!-- 加载提示 -->
+<view class="loading-overlay {{showLoading ? 'show' : ''}}">
+  <view class="loading-content">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">{{loadingText}}</text>
+  </view>
+</view>

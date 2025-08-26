@@ -1,0 +1,268 @@
+<!--电工申请页面-->
+<view class="apply-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">提交中...</text>
+  </view>
+
+  <!-- 主要内容 -->
+  <view wx:else class="apply-content">
+    <!-- 申请进度 -->
+    <view class="progress-section">
+      <view class="progress-header">
+        <text class="progress-title">申请进度</text>
+      </view>
+      <view class="progress-steps">
+        <view class="step-item step-{{currentStep >= 1 ? 'active' : 'inactive'}}">
+          <view class="step-number">1</view>
+          <text class="step-text">填写信息</text>
+        </view>
+        <view class="step-line step-{{currentStep >= 2 ? 'active' : 'inactive'}}"></view>
+        <view class="step-item step-{{currentStep >= 2 ? 'active' : 'inactive'}}">
+          <view class="step-number">2</view>
+          <text class="step-text">上传资料</text>
+        </view>
+        <view class="step-line step-{{currentStep >= 3 ? 'active' : 'inactive'}}"></view>
+        <view class="step-item step-{{currentStep >= 3 ? 'active' : 'inactive'}}">
+          <view class="step-number">3</view>
+          <text class="step-text">等待审核</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 申请表单 -->
+    <form bindsubmit="onSubmitApplication">
+      <!-- 基本信息 -->
+      <view class="form-section">
+        <view class="section-title">
+          <view class="title-icon">👤</view>
+          <text class="title-text">基本信息</text>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">真实姓名 <text class="required">*</text></text>
+          <input class="form-input" name="realName" value="{{formData.realName}}" placeholder="请输入真实姓名" bindinput="onInputChange" data-field="realName" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">身份证号 <text class="required">*</text></text>
+          <input class="form-input" name="idCard" value="{{formData.idCard}}" placeholder="请输入身份证号" bindinput="onInputChange" data-field="idCard" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">手机号码 <text class="required">*</text></text>
+          <input class="form-input" name="phone" value="{{formData.phone}}" placeholder="请输入手机号码" type="number" bindinput="onInputChange" data-field="phone" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">年龄</text>
+          <input class="form-input" name="age" value="{{formData.age}}" placeholder="请输入年龄" type="number" bindinput="onInputChange" data-field="age" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">性别</text>
+          <radio-group name="gender" bindchange="onGenderChange">
+            <label class="radio-item">
+              <radio value="male" checked="{{formData.gender === 'male'}}" />
+              <text class="radio-text">男</text>
+            </label>
+            <label class="radio-item">
+              <radio value="female" checked="{{formData.gender === 'female'}}" />
+              <text class="radio-text">女</text>
+            </label>
+          </radio-group>
+        </view>
+      </view>
+
+      <!-- 工作经验 -->
+      <view class="form-section">
+        <view class="section-title">
+          <view class="title-icon">🔧</view>
+          <text class="title-text">工作经验</text>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">从业年限 <text class="required">*</text></text>
+          <picker name="experience" range="{{experienceOptions}}" range-key="text" value="{{formData.experienceIndex}}" bindchange="onExperienceChange">
+            <view class="picker-input">
+              <text class="picker-text">{{experienceOptions[formData.experienceIndex].text}}</text>
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">专业技能 <text class="required">*</text></text>
+          <view class="skill-tags">
+            <view wx:for="{{skillOptions}}" wx:key="value" class="skill-tag skill-{{item.selected ? 'selected' : 'unselected'}}" bindtap="onSkillToggle" data-index="{{index}}">
+              <text class="skill-text">{{item.text}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">工作描述</text>
+          <textarea class="form-textarea" name="workDescription" value="{{formData.workDescription}}" placeholder="请简要描述您的工作经验和专业技能" bindinput="onInputChange" data-field="workDescription" maxlength="500"></textarea>
+          <view class="textarea-counter">{{formData.workDescription.length}}/500</view>
+        </view>
+      </view>
+
+      <!-- 服务区域 -->
+      <view class="form-section">
+        <view class="section-title">
+          <view class="title-icon">📍</view>
+          <text class="title-text">服务区域</text>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">所在城市 <text class="required">*</text></text>
+          <picker name="city" range="{{cityOptions}}" range-key="text" value="{{formData.cityIndex}}" bindchange="onCityChange">
+            <view class="picker-input">
+              <text class="picker-text">{{cityOptions[formData.cityIndex].text}}</text>
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">服务区域 <text class="required">*</text></text>
+          <view class="area-tags">
+            <view wx:for="{{areaOptions}}" wx:key="value" class="area-tag area-{{item.selected ? 'selected' : 'unselected'}}" bindtap="onAreaToggle" data-index="{{index}}">
+              <text class="area-text">{{item.text}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">详细地址</text>
+          <input class="form-input" name="address" value="{{formData.address}}" placeholder="请输入详细地址" bindinput="onInputChange" data-field="address" />
+        </view>
+      </view>
+
+      <!-- 资质证明 -->
+      <view class="form-section">
+        <view class="section-title">
+          <view class="title-icon">📄</view>
+          <text class="title-text">资质证明</text>
+        </view>
+        
+        <!-- 身份证照片 -->
+        <view class="upload-item">
+          <text class="upload-label">身份证照片 <text class="required">*</text></text>
+          <text class="upload-desc">请上传身份证正反面照片</text>
+          <view class="upload-grid">
+            <view class="upload-card">
+              <view class="upload-title">身份证正面</view>
+              <view wx:if="{{formData.idCardFront}}" class="upload-preview" bindtap="onPreviewImage" data-current="{{formData.idCardFront}}" data-urls="{{[formData.idCardFront]}}">
+                <image class="preview-image" src="{{formData.idCardFront}}" mode="aspectFill"></image>
+                <view class="upload-delete" bindtap="onDeleteImage" data-field="idCardFront" catchtap="">
+                  <text class="delete-icon">×</text>
+                </view>
+              </view>
+              <view wx:else class="upload-placeholder" bindtap="onChooseImage" data-field="idCardFront">
+                <text class="upload-icon">📷</text>
+                <text class="upload-text">点击上传</text>
+              </view>
+            </view>
+            
+            <view class="upload-card">
+              <view class="upload-title">身份证反面</view>
+              <view wx:if="{{formData.idCardBack}}" class="upload-preview" bindtap="onPreviewImage" data-current="{{formData.idCardBack}}" data-urls="{{[formData.idCardBack]}}">
+                <image class="preview-image" src="{{formData.idCardBack}}" mode="aspectFill"></image>
+                <view class="upload-delete" bindtap="onDeleteImage" data-field="idCardBack" catchtap="">
+                  <text class="delete-icon">×</text>
+                </view>
+              </view>
+              <view wx:else class="upload-placeholder" bindtap="onChooseImage" data-field="idCardBack">
+                <text class="upload-icon">📷</text>
+                <text class="upload-text">点击上传</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 技能证书 -->
+        <view class="upload-item">
+          <text class="upload-label">技能证书</text>
+          <text class="upload-desc">请上传相关技能证书（可选，有助于提高通过率）</text>
+          <view class="upload-list">
+            <view wx:for="{{formData.certificates}}" wx:key="index" class="upload-preview" bindtap="onPreviewImage" data-current="{{item}}" data-urls="{{formData.certificates}}">
+              <image class="preview-image" src="{{item}}" mode="aspectFill"></image>
+              <view class="upload-delete" bindtap="onDeleteCertificate" data-index="{{index}}" catchtap="">
+                <text class="delete-icon">×</text>
+              </view>
+            </view>
+            <view wx:if="{{formData.certificates.length < 5}}" class="upload-placeholder" bindtap="onChooseCertificate">
+              <text class="upload-icon">📷</text>
+              <text class="upload-text">添加证书</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 工作照片 -->
+        <view class="upload-item">
+          <text class="upload-label">工作照片</text>
+          <text class="upload-desc">请上传工作现场照片（可选，展示专业形象）</text>
+          <view class="upload-list">
+            <view wx:for="{{formData.workPhotos}}" wx:key="index" class="upload-preview" bindtap="onPreviewImage" data-current="{{item}}" data-urls="{{formData.workPhotos}}">
+              <image class="preview-image" src="{{item}}" mode="aspectFill"></image>
+              <view class="upload-delete" bindtap="onDeleteWorkPhoto" data-index="{{index}}" catchtap="">
+                <text class="delete-icon">×</text>
+              </view>
+            </view>
+            <view wx:if="{{formData.workPhotos.length < 5}}" class="upload-placeholder" bindtap="onChooseWorkPhoto">
+              <text class="upload-icon">📷</text>
+              <text class="upload-text">添加照片</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 服务承诺 -->
+      <view class="form-section">
+        <view class="section-title">
+          <view class="title-icon">📋</view>
+          <text class="title-text">服务承诺</text>
+        </view>
+        
+        <view class="commitment-list">
+          <view class="commitment-item">
+            <text class="commitment-icon">✓</text>
+            <text class="commitment-text">提供真实有效的个人信息和资质证明</text>
+          </view>
+          <view class="commitment-item">
+            <text class="commitment-icon">✓</text>
+            <text class="commitment-text">严格遵守平台服务规范和职业道德</text>
+          </view>
+          <view class="commitment-item">
+            <text class="commitment-icon">✓</text>
+            <text class="commitment-text">为客户提供优质、安全的电工服务</text>
+          </view>
+          <view class="commitment-item">
+            <text class="commitment-icon">✓</text>
+            <text class="commitment-text">及时响应客户需求，保证服务质量</text>
+          </view>
+        </view>
+        
+        <view class="agreement-section">
+          <label class="agreement-item" bindtap="onAgreementToggle">
+            <checkbox checked="{{formData.agreeTerms}}" />
+            <text class="agreement-text">我已阅读并同意</text>
+            <text class="agreement-link" bindtap="onViewAgreement" catchtap="">《电工服务协议》</text>
+          </label>
+        </view>
+      </view>
+
+      <!-- 提交按钮 -->
+      <view class="submit-section">
+        <button class="submit-btn" form-type="submit" disabled="{{!canSubmit}}">
+          <text class="submit-text">提交申请</text>
+        </button>
+        <view class="submit-tips">
+          <text class="tips-text">提交后我们将在1-3个工作日内完成审核</text>
+        </view>
+      </view>
+    </form>
+  </view>
+</view>

@@ -1,0 +1,332 @@
+<!--pages/user/create-order/create-order.wxml-->
+<view class="container">
+  <!-- 顶部进度条 -->
+  <view class="progress-bar">
+    <view class="progress-step {{currentStep >= 1 ? 'active' : ''}}">
+      <view class="step-number">1</view>
+      <view class="step-text">选择服务</view>
+    </view>
+    <view class="progress-line {{currentStep >= 2 ? 'active' : ''}}"></view>
+    <view class="progress-step {{currentStep >= 2 ? 'active' : ''}}">
+      <view class="step-number">2</view>
+      <view class="step-text">填写信息</view>
+    </view>
+    <view class="progress-line {{currentStep >= 3 ? 'active' : ''}}"></view>
+    <view class="progress-step {{currentStep >= 3 ? 'active' : ''}}">
+      <view class="step-number">3</view>
+      <view class="step-text">确认下单</view>
+    </view>
+  </view>
+
+  <!-- 步骤1：选择服务 -->
+  <view class="step-content" wx:if="{{currentStep === 1}}">
+    <view class="section-title">选择服务类型</view>
+    <view class="service-grid">
+      <view 
+        class="service-item {{selectedService === item.id ? 'selected' : ''}}"
+        wx:for="{{serviceTypes}}"
+        wx:key="id"
+        bindtap="selectService"
+        data-id="{{item.id}}"
+      >
+        <view class="service-icon">
+          <image src="{{item.icon}}" mode="aspectFit" />
+        </view>
+        <view class="service-name">{{item.name}}</view>
+        <view class="service-desc">{{item.description}}</view>
+        <view class="service-price">￥{{item.basePrice}}/次起</view>
+      </view>
+    </view>
+
+    <view class="section-title">故障描述</view>
+    <view class="fault-types">
+      <view 
+        class="fault-tag {{selectedFaults.includes(item.id) ? 'selected' : ''}}"
+        wx:for="{{faultTypes}}"
+        wx:key="id"
+        bindtap="toggleFault"
+        data-id="{{item.id}}"
+      >
+        {{item.name}}
+      </view>
+    </view>
+
+    <view class="step-actions">
+      <button 
+        class="next-btn {{selectedService ? 'active' : 'disabled'}}"
+        bindtap="nextStep"
+        disabled="{{!selectedService}}"
+      >
+        下一步
+      </button>
+    </view>
+  </view>
+
+  <!-- 步骤2：填写信息 -->
+  <view class="step-content" wx:if="{{currentStep === 2}}">
+    <!-- 联系信息 -->
+    <view class="form-section">
+      <view class="section-title">联系信息</view>
+      <view class="form-item">
+        <view class="form-label">联系人</view>
+        <input 
+          class="form-input"
+          placeholder="请输入联系人姓名"
+          value="{{orderInfo.contactName}}"
+          bindinput="onContactNameInput"
+        />
+      </view>
+      <view class="form-item">
+        <view class="form-label">联系电话</view>
+        <input 
+          class="form-input"
+          placeholder="请输入联系电话"
+          type="number"
+          value="{{orderInfo.contactPhone}}"
+          bindinput="onContactPhoneInput"
+        />
+      </view>
+    </view>
+
+    <!-- 服务地址 -->
+    <view class="form-section">
+      <view class="section-title">服务地址</view>
+      <view class="address-selector" bindtap="selectAddress">
+        <view class="address-content">
+          <view class="address-text" wx:if="{{orderInfo.address}}">
+            {{orderInfo.address}}
+          </view>
+          <view class="address-placeholder" wx:else>
+            点击选择服务地址
+          </view>
+        </view>
+        <view class="address-arrow">></view>
+      </view>
+      <view class="form-item">
+        <view class="form-label">详细地址</view>
+        <input 
+          class="form-input"
+          placeholder="请输入门牌号、楼层等详细信息"
+          value="{{orderInfo.addressDetail}}"
+          bindinput="onAddressDetailInput"
+        />
+      </view>
+    </view>
+
+    <!-- 预约时间 -->
+    <view class="appointment-section">
+      <view class="section-title">预约时间</view>
+      <picker mode="date" value="{{appointmentDate}}" start="{{appointmentDate}}" bindchange="onDateChange">
+        <view class="date-picker">
+          {{appointmentDate || '请选择日期'}}
+        </view>
+      </picker>
+      
+      <view class="time-slots">
+        <view 
+          class="time-slot {{selectedTimeSlot === item.id ? 'selected' : ''}} {{!item.available ? 'unavailable' : ''}}"
+          wx:for="{{timeSlots}}"
+          wx:key="id"
+          bindtap="selectTimeSlot"
+          data-id="{{item.id}}"
+        >
+          <view class="slot-name">{{item.name}}</view>
+          <view class="slot-extra" wx:if="{{item.extra}}">+￥{{item.extra}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 故障描述 -->
+    <view class="form-section">
+      <view class="section-title">故障描述</view>
+      <view class="form-item">
+        <view class="form-label">详细描述</view>
+        <textarea 
+          class="form-textarea"
+          placeholder="请详细描述故障情况，有助于电工更好地准备工具和材料"
+          value="{{orderInfo.description}}"
+          bindinput="onDescriptionInput"
+          maxlength="500"
+        ></textarea>
+      </view>
+    </view>
+
+    <!-- 紧急程度 -->
+    <view class="urgent-switch">
+      <view>
+        <view class="urgent-label">紧急维修</view>
+        <view class="urgent-desc">加急处理，额外收费￥30</view>
+      </view>
+      <switch 
+        checked="{{orderInfo.urgentType === 'urgent'}}"
+        bindchange="toggleUrgent"
+        color="#2196F3"
+      />
+    </view>
+
+    <!-- 图片上传 -->
+    <view class="image-upload">
+      <view class="section-title">现场照片</view>
+      <view class="image-grid">
+        <view 
+          class="image-item"
+          wx:for="{{uploadedImages}}"
+          wx:key="index"
+          bindtap="previewImage"
+          data-index="{{index}}"
+        >
+          <image src="{{item}}" mode="aspectFill" />
+          <view 
+            class="image-delete"
+            bindtap="deleteImage"
+            data-index="{{index}}"
+            catchtap="true"
+          >
+            ×
+          </view>
+        </view>
+        
+        <view 
+          class="image-add"
+          wx:if="{{uploadedImages.length < maxImages}}"
+          bindtap="chooseImage"
+        >
+          <view class="add-icon">+</view>
+          <view class="add-text">添加照片</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="step-actions">
+      <button class="prev-btn" bindtap="prevStep">上一步</button>
+      <button 
+        class="next-btn {{orderInfo.contactName && orderInfo.contactPhone && orderInfo.address && orderInfo.description ? 'active' : 'disabled'}}"
+        bindtap="nextStep"
+        disabled="{{!(orderInfo.contactName && orderInfo.contactPhone && orderInfo.address && orderInfo.description)}}"
+      >
+        下一步
+      </button>
+    </view>
+  </view>
+
+  <!-- 步骤3：确认下单 -->
+  <view class="step-content" wx:if="{{currentStep === 3}}">
+    <!-- 服务信息确认 -->
+    <view class="confirm-section">
+      <view class="section-title">服务信息</view>
+      <view class="confirm-item">
+        <view class="confirm-label">服务类型</view>
+        <view class="confirm-value">
+          {{getServiceTypeName(selectedService)}}
+        </view>
+      </view>
+      <view class="confirm-item" wx:if="{{selectedFaults.length > 0}}">
+        <view class="confirm-label">故障类型</view>
+        <view class="confirm-value">
+          <view wx:for="{{selectedFaults}}" wx:key="*this">
+            {{getFaultTypeName(item)}}
+          </view>
+        </view>
+      </view>
+      <view class="confirm-item">
+        <view class="confirm-label">紧急程度</view>
+        <view class="confirm-value">
+          {{orderInfo.urgentType === 'urgent' ? '紧急维修' : '常规维修'}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 联系信息确认 -->
+    <view class="confirm-section">
+      <view class="section-title">联系信息</view>
+      <view class="confirm-item">
+        <view class="confirm-label">联系人</view>
+        <view class="confirm-value">{{orderInfo.contactName}}</view>
+      </view>
+      <view class="confirm-item">
+        <view class="confirm-label">联系电话</view>
+        <view class="confirm-value">{{orderInfo.contactPhone}}</view>
+      </view>
+      <view class="confirm-item">
+        <view class="confirm-label">服务地址</view>
+        <view class="confirm-value">
+          {{orderInfo.address}}
+          <view wx:if="{{orderInfo.addressDetail}}">{{orderInfo.addressDetail}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 预约时间确认 -->
+    <view class="confirm-section">
+      <view class="section-title">预约时间</view>
+      <view class="confirm-item">
+        <view class="confirm-label">预约日期</view>
+        <view class="confirm-value">{{appointmentDate}}</view>
+      </view>
+      <view class="confirm-item" wx:if="{{selectedTimeSlot}}">
+        <view class="confirm-label">时间段</view>
+        <view class="confirm-value">
+          {{getTimeSlotName(selectedTimeSlot)}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 故障描述确认 -->
+    <view class="confirm-section">
+      <view class="section-title">故障描述</view>
+      <view class="confirm-item">
+        <view class="confirm-label">详细描述</view>
+        <view class="confirm-value">{{orderInfo.description}}</view>
+      </view>
+      <view class="confirm-item" wx:if="{{uploadedImages.length > 0}}">
+        <view class="confirm-label">现场照片</view>
+        <view class="confirm-value">
+          <view class="confirm-images">
+            <view 
+              class="confirm-image"
+              wx:for="{{uploadedImages}}"
+              wx:key="index"
+              bindtap="previewImage"
+              data-index="{{index}}"
+            >
+              <image src="{{item}}" mode="aspectFill" />
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 费用预估 -->
+    <view class="cost-estimate">
+      <view class="section-title">费用预估</view>
+      <view class="cost-item">
+        <view class="cost-label">基础费用</view>
+        <view class="cost-value">￥{{estimatedCost.baseCost}}</view>
+      </view>
+      <view class="cost-item" wx:if="{{estimatedCost.urgentFee > 0}}">
+        <view class="cost-label">加急费用</view>
+        <view class="cost-value">￥{{estimatedCost.urgentFee}}</view>
+      </view>
+      <view class="cost-item">
+        <view class="cost-label">预估总计</view>
+        <view class="cost-value">￥{{estimatedCost.totalCost}}</view>
+      </view>
+    </view>
+
+    <view class="step-actions">
+      <button class="prev-btn" bindtap="prevStep">上一步</button>
+    </view>
+  </view>
+</view>
+
+<!-- 提交按钮 -->
+<view class="submit-section" wx:if="{{currentStep === 3}}">
+  <button 
+    class="submit-btn"
+    bindtap="submitOrder"
+    disabled="{{submitting}}"
+    loading="{{submitting}}"
+  >
+    {{submitting ? '提交中...' : '确认下单'}}
+  </button>
+</view>

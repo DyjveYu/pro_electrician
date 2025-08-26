@@ -1,0 +1,123 @@
+<!--地图选择页面-->
+<view class="map-container">
+  <!-- 地图组件 -->
+  <map 
+    id="map" 
+    class="map-view"
+    longitude="{{longitude}}"
+    latitude="{{latitude}}"
+    scale="{{scale}}"
+    markers="{{markers}}"
+    show-location="{{true}}"
+    bindregionchange="onRegionChange"
+    bindtap="onMapTap"
+    bindmarkertap="onMarkerTap"
+  >
+    <!-- 中心点标记 -->
+    <cover-view class="map-center-marker">
+      <cover-image class="marker-icon" src="/images/map-marker.png"></cover-image>
+    </cover-view>
+    
+    <!-- 定位按钮 -->
+    <cover-view class="location-btn" bindtap="onGetLocation">
+      <cover-image class="location-icon" src="/images/location-icon.png"></cover-image>
+    </cover-view>
+  </map>
+
+  <!-- 搜索栏 -->
+  <view class="search-container">
+    <view class="search-box">
+      <view class="search-icon">🔍</view>
+      <input 
+        class="search-input" 
+        placeholder="搜索地点" 
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+        focus="{{searchFocus}}"
+      />
+      <view wx:if="{{searchKeyword}}" class="search-clear" bindtap="onClearSearch">
+        <text class="clear-icon">×</text>
+      </view>
+    </view>
+    
+    <!-- 搜索建议 -->
+    <view wx:if="{{searchSuggestions.length > 0}}" class="search-suggestions">
+      <view 
+        wx:for="{{searchSuggestions}}" 
+        wx:key="id" 
+        class="suggestion-item"
+        bindtap="onSelectSuggestion"
+        data-item="{{item}}"
+      >
+        <view class="suggestion-icon">📍</view>
+        <view class="suggestion-content">
+          <text class="suggestion-title">{{item.title}}</text>
+          <text class="suggestion-address">{{item.address}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 地址信息卡片 -->
+  <view class="address-card">
+    <view class="card-header">
+      <view class="address-icon">📍</view>
+      <text class="card-title">选择的位置</text>
+    </view>
+    
+    <view class="address-info">
+      <view class="address-main">
+        <text class="address-name">{{selectedAddress.name || '未知位置'}}</text>
+      </view>
+      <view class="address-detail">
+        <text class="address-text">{{selectedAddress.address || '正在获取地址...'}}</text>
+      </view>
+    </view>
+    
+    <!-- 附近地点 -->
+    <view wx:if="{{nearbyPlaces.length > 0}}" class="nearby-places">
+      <view class="nearby-title">附近地点</view>
+      <scroll-view class="nearby-list" scroll-x="{{true}}">
+        <view 
+          wx:for="{{nearbyPlaces}}" 
+          wx:key="id" 
+          class="nearby-item nearby-{{item.selected ? 'selected' : 'normal'}}"
+          bindtap="onSelectNearbyPlace"
+          data-item="{{item}}"
+        >
+          <view class="nearby-icon">{{item.icon}}</view>
+          <text class="nearby-name">{{item.name}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <view class="action-buttons">
+      <button class="cancel-btn" bindtap="onCancel">
+        <text class="btn-text">取消</text>
+      </button>
+      <button class="confirm-btn" bindtap="onConfirm" disabled="{{!selectedAddress.address}}">
+        <text class="btn-text">确定</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-overlay">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">{{loadingText}}</text>
+    </view>
+  </view>
+
+  <!-- 错误提示 -->
+  <view wx:if="{{showError}}" class="error-toast">
+    <view class="error-content">
+      <view class="error-icon">⚠️</view>
+      <text class="error-text">{{errorMessage}}</text>
+    </view>
+  </view>
+</view>

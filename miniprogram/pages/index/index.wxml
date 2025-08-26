@@ -1,0 +1,198 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 顶部搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input" bindtap="onSearchTap">
+      <text class="iconfont icon-search">🔍</text>
+      <text class="search-placeholder">搜索电工服务</text>
+    </view>
+    <view class="location-btn" bindtap="onLocationTap">
+      <text class="iconfont icon-location">📍</text>
+      <text class="location-text">{{currentAddress || '定位中...'}}</text>
+    </view>
+    <!-- 开发者入口 -->
+    <view class="dev-btn" bindtap="onDevTestTap" wx:if="{{showDevEntry}}">
+      <text class="dev-icon">🔧</text>
+    </view>
+  </view>
+
+  <!-- 用户类型切换 -->
+  <view class="user-type-switch" wx:if="{{userInfo}}">
+    <view class="switch-item {{userType === 'user' ? 'active' : ''}}" bindtap="switchToUser">
+      <text class="switch-text">我要找电工</text>
+    </view>
+    <view class="switch-item {{userType === 'electrician' ? 'active' : ''}}" bindtap="switchToElectrician">
+      <text class="switch-text">我是电工</text>
+    </view>
+  </view>
+
+  <!-- 用户端内容 -->
+  <view class="user-content" wx:if="{{userType === 'user'}}">
+    <!-- 服务分类 -->
+    <view class="service-categories">
+      <view class="section-title">服务分类</view>
+      <view class="category-grid">
+        <view class="category-item" wx:for="{{serviceCategories}}" wx:key="id" bindtap="onCategoryTap" data-category="{{item}}">
+          <view class="category-icon">{{item.icon}}</view>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 快速下单 -->
+    <view class="quick-order">
+      <view class="section-title">快速下单</view>
+      <view class="order-card" bindtap="onQuickOrderTap">
+        <view class="order-content">
+          <view class="order-title">紧急电工服务</view>
+          <view class="order-desc">24小时响应，专业电工上门服务</view>
+        </view>
+        <view class="order-btn">
+          <text>立即下单</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 附近电工 -->
+    <view class="nearby-electricians">
+      <view class="section-title">
+        <text>附近电工</text>
+        <text class="more-btn" bindtap="onMoreElectriciansTap">更多</text>
+      </view>
+      <scroll-view class="electrician-list" scroll-x="true">
+        <view class="electrician-item" wx:for="{{nearbyElectricians}}" wx:key="id" bindtap="onElectricianTap" data-electrician="{{item}}">
+          <image class="electrician-avatar" src="{{item.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <view class="electrician-info">
+            <view class="electrician-name">{{item.name}}</view>
+            <view class="electrician-rating">
+              <text class="rating-text">{{item.rating}}</text>
+              <text class="rating-stars">⭐⭐⭐⭐⭐</text>
+            </view>
+            <view class="electrician-distance">{{item.distanceText}}</view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 我的工单 -->
+    <view class="my-orders">
+      <view class="section-title">
+        <text>我的工单</text>
+        <text class="more-btn" bindtap="onMoreOrdersTap">更多</text>
+      </view>
+      <view class="order-list">
+        <view class="order-item" wx:for="{{myOrders}}" wx:key="id" bindtap="onOrderTap" data-order="{{item}}">
+          <view class="order-header">
+            <view class="order-title">{{item.title}}</view>
+            <view class="order-status status-{{item.status}}">{{item.statusText}}</view>
+          </view>
+          <view class="order-info">
+            <view class="order-time">{{item.createTimeText}}</view>
+            <view class="order-price">¥{{item.price}}</view>
+          </view>
+        </view>
+        <view class="empty-state" wx:if="{{myOrders.length === 0}}">
+          <text class="empty-icon">📋</text>
+          <text class="empty-text">暂无工单</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 电工端内容 -->
+  <view class="electrician-content" wx:if="{{userType === 'electrician'}}">
+    <!-- 工作状态 -->
+    <view class="work-status">
+      <view class="status-card">
+        <view class="status-header">
+          <text class="status-title">工作状态</text>
+          <switch class="status-switch" checked="{{isWorking}}" bindchange="onWorkStatusChange"></switch>
+        </view>
+        <view class="status-info">
+          <text class="status-text">{{isWorking ? '接单中' : '休息中'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 今日数据 -->
+    <view class="today-stats">
+      <view class="section-title">今日数据</view>
+      <view class="stats-grid">
+        <view class="stat-item">
+          <view class="stat-number">{{todayStats.orders}}</view>
+          <view class="stat-label">接单数</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-number">¥{{todayStats.income}}</view>
+          <view class="stat-label">收入</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-number">{{todayStats.rating}}</view>
+          <view class="stat-label">评分</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 可接工单 -->
+    <view class="available-orders">
+      <view class="section-title">
+        <text>可接工单</text>
+        <text class="refresh-btn" bindtap="onRefreshOrdersTap">🔄</text>
+      </view>
+      <view class="order-list">
+        <view class="order-item" wx:for="{{availableOrders}}" wx:key="id" bindtap="onAvailableOrderTap" data-order="{{item}}">
+          <view class="order-header">
+            <view class="order-title">{{item.title}}</view>
+            <view class="order-price">¥{{item.price}}</view>
+          </view>
+          <view class="order-info">
+            <view class="order-location">📍 {{item.address}}</view>
+            <view class="order-distance">{{item.distanceText}}</view>
+          </view>
+          <view class="order-time">{{item.createTimeText}}</view>
+        </view>
+        <view class="empty-state" wx:if="{{availableOrders.length === 0}}">
+          <text class="empty-icon">📋</text>
+          <text class="empty-text">暂无可接工单</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 我的工单 -->
+    <view class="my-work-orders">
+      <view class="section-title">
+        <text>我的工单</text>
+        <text class="more-btn" bindtap="onMoreWorkOrdersTap">更多</text>
+      </view>
+      <view class="order-list">
+        <view class="order-item" wx:for="{{myWorkOrders}}" wx:key="id" bindtap="onWorkOrderTap" data-order="{{item}}">
+          <view class="order-header">
+            <view class="order-title">{{item.title}}</view>
+            <view class="order-status status-{{item.status}}">{{item.statusText}}</view>
+          </view>
+          <view class="order-info">
+            <view class="order-location">📍 {{item.address}}</view>
+            <view class="order-time">{{item.createTimeText}}</view>
+          </view>
+        </view>
+        <view class="empty-state" wx:if="{{myWorkOrders.length === 0}}">
+          <text class="empty-icon">📋</text>
+          <text class="empty-text">暂无工单</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 未登录状态 -->
+  <view class="login-prompt" wx:if="{{!userInfo}}">
+    <view class="prompt-card">
+      <view class="prompt-icon">👋</view>
+      <view class="prompt-title">欢迎使用电工维修平台</view>
+      <view class="prompt-desc">请先登录以享受完整服务</view>
+      <button class="login-btn" bindtap="onLoginTap">立即登录</button>
+    </view>
+  </view>
+</view>
+
+<!-- 底部安全区域 -->
+<view class="safe-area-bottom"></view>

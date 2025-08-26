@@ -1,0 +1,106 @@
+<!--pages/test/api-test/api-test.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="title">API接口测试</text>
+    <text class="subtitle">验证前后端连接状态</text>
+  </view>
+
+  <!-- 连接状态 -->
+  <view class="status-section">
+    <view class="status-item">
+      <text class="status-label">后端服务状态:</text>
+      <text class="status-value {{serverStatus ? 'success' : 'error'}}">{{serverStatus ? '已连接' : '未连接'}}</text>
+    </view>
+    <view class="status-item">
+      <text class="status-label">WebSocket状态:</text>
+      <text class="status-value {{wsStatus ? 'success' : 'error'}}">{{wsStatus ? '已连接' : '未连接'}}</text>
+    </view>
+  </view>
+
+  <!-- API测试按钮组 -->
+  <view class="test-section">
+    <text class="section-title">基础接口测试</text>
+    
+    <button class="test-btn" bindtap="testHealthCheck" disabled="{{loading}}">
+      <text class="btn-text">健康检查</text>
+      <text class="btn-desc">GET /api/health</text>
+    </button>
+
+    <button class="test-btn" bindtap="testElectricianList" disabled="{{loading}}">
+      <text class="btn-text">获取电工列表</text>
+      <text class="btn-desc">GET /api/electricians</text>
+    </button>
+
+    <button class="test-btn" bindtap="testSendSMS" disabled="{{loading}}">
+      <text class="btn-text">发送验证码</text>
+      <text class="btn-desc">POST /api/auth/send-sms</text>
+    </button>
+  </view>
+
+  <!-- 认证接口测试 -->
+  <view class="test-section">
+    <text class="section-title">认证接口测试</text>
+    
+    <view class="input-group">
+      <input class="test-input" placeholder="请输入手机号" value="{{testPhone}}" bindinput="onPhoneInput" />
+    </view>
+    
+    <button class="test-btn" bindtap="testLogin" disabled="{{loading || !testPhone}}">
+      <text class="btn-text">模拟登录</text>
+      <text class="btn-desc">POST /api/auth/login</text>
+    </button>
+
+    <button class="test-btn" bindtap="testCheckLogin" disabled="{{loading}}">
+      <text class="btn-text">检查登录状态</text>
+      <text class="btn-desc">GET /api/auth/check</text>
+    </button>
+  </view>
+
+  <!-- 工单接口测试 -->
+  <view class="test-section">
+    <text class="section-title">工单接口测试</text>
+    
+    <button class="test-btn" bindtap="testCreateOrder" disabled="{{loading}}">
+      <text class="btn-text">创建测试工单</text>
+      <text class="btn-desc">POST /api/orders</text>
+    </button>
+
+    <button class="test-btn" bindtap="testGetOrders" disabled="{{loading}}">
+      <text class="btn-text">获取工单列表</text>
+      <text class="btn-desc">GET /api/orders</text>
+    </button>
+  </view>
+
+  <!-- 测试结果显示 -->
+  <view class="result-section">
+    <text class="section-title">测试结果</text>
+    <scroll-view class="result-scroll" scroll-y="true">
+      <view class="result-item" wx:for="{{testResults}}" wx:key="index">
+        <view class="result-header">
+          <text class="result-time">{{item.time}}</text>
+          <text class="result-status {{item.success ? 'success' : 'error'}}">{{item.success ? '成功' : '失败'}}</text>
+        </view>
+        <text class="result-api">{{item.api}}</text>
+        <text class="result-message">{{item.message}}</text>
+        <view class="result-data" wx:if="{{item.data}}">
+          <text class="data-label">响应数据:</text>
+          <text class="data-content">{{item.data}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 清空结果按钮 -->
+  <view class="action-section">
+    <button class="clear-btn" bindtap="clearResults">清空结果</button>
+    <button class="refresh-btn" bindtap="refreshStatus">刷新状态</button>
+  </view>
+
+  <!-- 加载提示 -->
+  <view class="loading-mask" wx:if="{{loading}}">
+    <view class="loading-content">
+      <text class="loading-text">{{loadingText}}</text>
+    </view>
+  </view>
+</view>

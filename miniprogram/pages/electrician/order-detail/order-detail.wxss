@@ -1,0 +1,676 @@
+/* 电工端工单详情页面样式 */
+.order-detail-container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding-bottom: 120rpx;
+}
+
+/* 加载状态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #999;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #e0e0e0;
+  border-top: 4rpx solid #1976d2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 详情内容 */
+.detail-content {
+  padding: 20rpx;
+}
+
+/* 状态卡片 */
+.status-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.status-card.accepted {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.status-card.in_progress {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+}
+
+.status-card.completed {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+}
+
+.status-card.cancelled {
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.status-icon {
+  width: 80rpx;
+  height: 80rpx;
+  background: #1976d2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.status-icon .iconfont {
+  font-size: 40rpx;
+  color: white;
+}
+
+.status-info {
+  flex: 1;
+}
+
+.status-text {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.status-desc {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 进度条 */
+.progress-bar {
+  margin-top: 24rpx;
+}
+
+.progress-track {
+  height: 8rpx;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #1976d2;
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+}
+
+.step {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+.step.active {
+  color: #1976d2;
+  font-weight: bold;
+}
+
+/* Tab切换 */
+.tab-section {
+  display: flex;
+  background: white;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 16rpx;
+  font-size: 28rpx;
+  color: #666;
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  background: #1976d2;
+  color: white;
+  font-weight: bold;
+}
+
+/* Tab内容 */
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* 信息卡片 */
+.info-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.card-header .iconfont {
+  font-size: 32rpx;
+  color: #1976d2;
+  margin-right: 12rpx;
+}
+
+.card-title {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.card-action {
+  font-size: 26rpx;
+  color: #1976d2;
+  padding: 8rpx 16rpx;
+  border: 1rpx solid #1976d2;
+  border-radius: 20rpx;
+}
+
+/* 信息列表 */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.info-value.urgent {
+  color: #d32f2f;
+  font-weight: bold;
+}
+
+/* 地址信息 */
+.address-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.address-text {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: bold;
+}
+
+.address-detail {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+.distance-info {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #1976d2;
+}
+
+.distance-info .iconfont {
+  margin-right: 8rpx;
+}
+
+/* 描述内容 */
+.description-content {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+  background: #f8f9fa;
+  padding: 20rpx;
+  border-radius: 12rpx;
+}
+
+/* 图片网格 */
+.images-grid {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.problem-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  background: #f5f7fa;
+}
+
+/* 费用信息 */
+.price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.price-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.price-value {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: bold;
+}
+
+.price-value.highlight {
+  color: #d32f2f;
+  font-size: 36rpx;
+}
+
+/* 客户信息 */
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.customer-avatar {
+  align-self: center;
+}
+
+.avatar-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  background: #f5f7fa;
+}
+
+.customer-details {
+  text-align: center;
+}
+
+.customer-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.customer-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+  color: #ff9800;
+}
+
+.customer-rating .iconfont {
+  margin-right: 8rpx;
+}
+
+.rating-count {
+  margin-left: 8rpx;
+  color: #999;
+  font-size: 24rpx;
+}
+
+.customer-phone {
+  font-size: 28rpx;
+  color: #1976d2;
+}
+
+.customer-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.customer-actions .action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  background: #f5f7fa;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: #1976d2;
+}
+
+.customer-actions .action-btn .iconfont {
+  font-size: 32rpx;
+  margin-bottom: 8rpx;
+}
+
+/* 历史订单 */
+.history-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+}
+
+.history-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.history-type {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.history-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.history-rating {
+  display: flex;
+  align-items: center;
+  color: #ff9800;
+}
+
+.history-rating .iconfont {
+  margin-right: 4rpx;
+}
+
+/* 时间信息 */
+.time-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.time-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.time-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.time-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 进度时间线 */
+.progress-timeline {
+  position: relative;
+  padding-left: 40rpx;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 32rpx;
+}
+
+.timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: -32rpx;
+  top: 24rpx;
+  width: 2rpx;
+  height: calc(100% - 16rpx);
+  background: #e0e0e0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -40rpx;
+  top: 8rpx;
+  width: 16rpx;
+  height: 16rpx;
+  background: #1976d2;
+  border-radius: 50%;
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.timeline-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.timeline-desc {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* 维修报告 */
+.repair-report {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.report-summary {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+  background: #f8f9fa;
+  padding: 20rpx;
+  border-radius: 12rpx;
+}
+
+.repair-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.comparison-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.comparison-images {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.comparison-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  background: #f5f7fa;
+}
+
+/* 客户评价 */
+.review-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.review-rating {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 4rpx;
+}
+
+.star {
+  font-size: 32rpx;
+  color: #e0e0e0;
+}
+
+.star.active {
+  color: #ff9800;
+}
+
+.rating-text {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: bold;
+}
+
+.review-comment {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+  background: #f8f9fa;
+  padding: 20rpx;
+  border-radius: 12rpx;
+}
+
+.review-time {
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 20rpx;
+  display: flex;
+  gap: 20rpx;
+  border-top: 1rpx solid #e0e0e0;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.action-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  border: none;
+  gap: 8rpx;
+}
+
+.action-button.primary {
+  background: #1976d2;
+  color: white;
+}
+
+.action-button.secondary {
+  background: #f5f7fa;
+  color: #1976d2;
+  border: 1rpx solid #1976d2;
+}
+
+.action-button .iconfont {
+  font-size: 32rpx;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .order-detail-container {
+    background-color: #121212;
+  }
+  
+  .info-card {
+    background: #1e1e1e;
+    color: #ffffff;
+  }
+  
+  .tab-section {
+    background: #1e1e1e;
+  }
+  
+  .bottom-actions {
+    background: #1e1e1e;
+    border-top-color: #333;
+  }
+  
+  .card-header {
+    border-bottom-color: #333;
+  }
+  
+  .description-content,
+  .report-summary,
+  .review-comment {
+    background: #2a2a2a;
+    color: #ffffff;
+  }
+}

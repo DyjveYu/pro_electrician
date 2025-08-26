@@ -1,0 +1,171 @@
+<!--pages/user/orders/orders.wxml-->
+<view class="container">
+  <!-- 顶部筛选栏 -->
+  <view class="filter-bar">
+    <scroll-view class="filter-scroll" scroll-x="true">
+      <view class="filter-item {{currentFilter === 'all' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="all">
+        <text>全部</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'pending' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="pending">
+        <text>待接单</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'accepted' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="accepted">
+        <text>已接单</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'confirmed' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="confirmed">
+        <text>进行中</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'completed' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="completed">
+        <text>待支付</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'paid' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="paid">
+        <text>已完成</text>
+      </view>
+      <view class="filter-item {{currentFilter === 'cancelled' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="cancelled">
+        <text>已取消</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 工单列表 -->
+  <view class="order-list">
+    <view class="order-item" wx:for="{{orderList}}" wx:key="id" bindtap="onOrderTap" data-order="{{item}}">
+      <!-- 工单头部 -->
+      <view class="order-header">
+        <view class="order-info">
+          <view class="order-title">{{item.serviceTypeName || '电工维修服务'}}</view>
+          <view class="order-time">{{item.createTimeText}}</view>
+        </view>
+        <view class="order-status status-{{item.status}}">
+          <text>{{item.statusText}}</text>
+        </view>
+      </view>
+
+      <!-- 工单内容 -->
+      <view class="order-content">
+        <view class="order-address">
+          <text class="address-icon">📍</text>
+          <text class="address-text">{{item.address}}</text>
+        </view>
+        <view class="order-description">
+          <text>{{item.description}}</text>
+        </view>
+        <view class="order-images" wx:if="{{item.images && item.images.length > 0}}">
+          <image 
+            class="order-image" 
+            wx:for="{{item.images}}" 
+            wx:for-item="image" 
+            wx:key="*this"
+            src="{{image}}" 
+            mode="aspectFill"
+            bindtap="onImageTap"
+            data-images="{{item.images}}"
+            data-current="{{image}}"
+          ></image>
+        </view>
+      </view>
+
+      <!-- 电工信息 -->
+      <view class="electrician-info" wx:if="{{item.electrician}}">
+        <image class="electrician-avatar" src="{{item.electrician.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="electrician-details">
+          <view class="electrician-name">{{item.electrician.name}}</view>
+          <view class="electrician-rating">
+            <text class="rating-text">{{item.electrician.rating}}</text>
+            <text class="rating-stars">⭐</text>
+          </view>
+        </view>
+        <view class="contact-btn" bindtap="onContactElectrician" data-electrician="{{item.electrician}}" catchtap="true">
+          <text>联系</text>
+        </view>
+      </view>
+
+      <!-- 工单底部 -->
+      <view class="order-footer">
+        <view class="order-price" wx:if="{{item.amount}}">
+          <text class="price-label">维修费用：</text>
+          <text class="price-value">¥{{item.amount}}</text>
+        </view>
+        <view class="order-actions">
+          <!-- 待接单状态 -->
+          <view class="action-buttons" wx:if="{{item.status === 'pending'}}">
+            <button class="action-btn cancel-btn" bindtap="onCancelOrder" data-order="{{item}}" catchtap="true">
+              取消工单
+            </button>
+          </view>
+          
+          <!-- 已接单状态 -->
+          <view class="action-buttons" wx:if="{{item.status === 'accepted'}}">
+            <button class="action-btn contact-btn" bindtap="onContactElectrician" data-electrician="{{item.electrician}}" catchtap="true">
+              联系电工
+            </button>
+          </view>
+          
+          <!-- 进行中状态 -->
+          <view class="action-buttons" wx:if="{{item.status === 'confirmed'}}">
+            <button class="action-btn contact-btn" bindtap="onContactElectrician" data-electrician="{{item.electrician}}" catchtap="true">
+              联系电工
+            </button>
+          </view>
+          
+          <!-- 待支付状态 -->
+          <view class="action-buttons" wx:if="{{item.status === 'completed'}}">
+            <button class="action-btn secondary-btn" bindtap="onViewRepairDetail" data-order="{{item}}" catchtap="true">
+              查看维修详情
+            </button>
+            <button class="action-btn primary-btn" bindtap="onPayOrder" data-order="{{item}}" catchtap="true">
+              立即支付
+            </button>
+          </view>
+          
+          <!-- 已完成状态 -->
+          <view class="action-buttons" wx:if="{{item.status === 'paid'}}">
+            <button class="action-btn secondary-btn" bindtap="onViewRepairDetail" data-order="{{item}}" catchtap="true">
+              查看维修详情
+            </button>
+            <button class="action-btn primary-btn" wx:if="{{!item.hasEvaluated}}" bindtap="onEvaluateOrder" data-order="{{item}}" catchtap="true">
+              评价服务
+            </button>
+            <button class="action-btn secondary-btn" wx:else bindtap="onViewEvaluation" data-order="{{item}}" catchtap="true">
+              查看评价
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{orderList.length === 0 && !loading}}">
+      <view class="empty-icon">📋</view>
+      <view class="empty-text">{{currentFilter === 'all' ? '暂无工单' : '暂无相关工单'}}</view>
+      <button class="empty-action-btn" bindtap="onCreateOrder" wx:if="{{currentFilter === 'all'}}">
+        立即下单
+      </button>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <view class="loading-icon">⏳</view>
+      <view class="loading-text">加载中...</view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore && orderList.length > 0}}">
+      <view class="load-more-text" wx:if="{{loadingMore}}">加载中...</view>
+      <view class="load-more-text" wx:else>上拉加载更多</view>
+    </view>
+
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && orderList.length > 0}}">
+      <view class="no-more-text">没有更多工单了</view>
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area-bottom"></view>
+</view>
+
+<!-- 快速操作浮动按钮 -->
+<view class="fab" bindtap="onCreateOrder">
+  <text class="fab-icon">+</text>
+</view>

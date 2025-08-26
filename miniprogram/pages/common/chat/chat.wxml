@@ -1,0 +1,201 @@
+<!--聊天页面-->
+<view class="chat-container">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">{{loadingText}}</text>
+  </view>
+
+  <!-- 聊天消息列表 -->
+  <scroll-view 
+    class="message-list" 
+    scroll-y="{{true}}"
+    scroll-top="{{scrollTop}}"
+    scroll-into-view="{{scrollIntoView}}"
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+    wx:if="{{!loading}}"
+  >
+    <!-- 消息项 -->
+    <view 
+      class="message-item {{message.type === 'sent' ? 'message-sent' : 'message-received'}}"
+      wx:for="{{messages}}"
+      wx:key="id"
+      id="message-{{message.id}}"
+    >
+      <!-- 时间分隔线 -->
+      <view class="time-divider" wx:if="{{message.showTime}}">
+        <text class="time-text">{{message.timeText}}</text>
+      </view>
+
+      <!-- 消息内容 -->
+      <view class="message-content">
+        <!-- 接收消息的头像 -->
+        <view class="avatar-container" wx:if="{{message.type === 'received'}}">
+          <image class="avatar" src="{{message.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+        </view>
+
+        <!-- 消息气泡 -->
+        <view class="message-bubble {{message.type === 'sent' ? 'bubble-sent' : 'bubble-received'}}">
+          <!-- 文本消息 -->
+          <view class="text-message" wx:if="{{message.messageType === 'text'}}">
+            <text class="message-text" selectable="{{true}}">{{message.content}}</text>
+          </view>
+
+          <!-- 图片消息 -->
+          <view class="image-message" wx:elif="{{message.messageType === 'image'}}">
+            <image 
+              class="message-image" 
+              src="{{message.content}}" 
+              mode="aspectFill"
+              bindtap="onPreviewImage"
+              data-url="{{message.content}}"
+            />
+          </view>
+
+          <!-- 语音消息 -->
+          <view class="voice-message" wx:elif="{{message.messageType === 'voice'}}" bindtap="onPlayVoice" data-message="{{message}}">
+            <view class="voice-icon {{message.playing ? 'voice-playing' : ''}}">
+              <text class="iconfont icon-voice">🎤</text>
+            </view>
+            <text class="voice-duration">{{message.duration}}"</text>
+          </view>
+
+          <!-- 位置消息 -->
+          <view class="location-message" wx:elif="{{message.messageType === 'location'}}" bindtap="onViewLocation" data-message="{{message}}">
+            <view class="location-icon">
+              <text class="iconfont icon-location">📍</text>
+            </view>
+            <view class="location-info">
+              <text class="location-name">{{message.locationName}}</text>
+              <text class="location-address">{{message.locationAddress}}</text>
+            </view>
+          </view>
+
+          <!-- 系统消息 -->
+          <view class="system-message" wx:elif="{{message.messageType === 'system'}}">
+            <text class="system-text">{{message.content}}</text>
+          </view>
+        </view>
+
+        <!-- 发送消息的头像 -->
+        <view class="avatar-container" wx:if="{{message.type === 'sent'}}">
+          <image class="avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+        </view>
+      </view>
+
+      <!-- 消息状态 -->
+      <view class="message-status" wx:if="{{message.type === 'sent'}}">
+        <view class="status-sending" wx:if="{{message.status === 'sending'}}">
+          <view class="status-spinner"></view>
+        </view>
+        <view class="status-failed" wx:elif="{{message.status === 'failed'}}" bindtap="onResendMessage" data-message="{{message}}">
+          <text class="iconfont icon-error">❌</text>
+        </view>
+        <view class="status-read" wx:elif="{{message.status === 'read'}}">
+          <text class="read-text">已读</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 正在输入提示 -->
+    <view class="typing-indicator" wx:if="{{isTyping}}">
+      <view class="typing-dots">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+      <text class="typing-text">对方正在输入...</text>
+    </view>
+  </scroll-view>
+
+  <!-- 输入区域 -->
+  <view class="input-container">
+    <!-- 工具栏 -->
+    <view class="toolbar" wx:if="{{showToolbar}}">
+      <!-- 图片选择 -->
+      <view class="tool-item" bindtap="onSelectImage">
+        <text class="tool-icon">📷</text>
+        <text class="tool-text">图片</text>
+      </view>
+      
+      <!-- 位置分享 -->
+      <view class="tool-item" bindtap="onShareLocation">
+        <text class="tool-icon">📍</text>
+        <text class="tool-text">位置</text>
+      </view>
+      
+      <!-- 语音通话 -->
+      <view class="tool-item" bindtap="onVoiceCall">
+        <text class="tool-icon">📞</text>
+        <text class="tool-text">通话</text>
+      </view>
+    </view>
+
+    <!-- 输入框区域 -->
+    <view class="input-area">
+      <!-- 语音按钮 -->
+      <view class="voice-btn" bindtap="onToggleInputType">
+        <text class="voice-icon">{{inputType === 'text' ? '🎤' : '⌨️'}}</text>
+      </view>
+
+      <!-- 文本输入 -->
+      <view class="text-input-container" wx:if="{{inputType === 'text'}}">
+        <textarea 
+          class="text-input"
+          placeholder="请输入消息..."
+          value="{{inputText}}"
+          bindinput="onInputChange"
+          bindconfirm="onSendText"
+          confirm-type="send"
+          auto-height="{{true}}"
+          maxlength="500"
+          show-confirm-bar="{{false}}"
+          adjust-position="{{true}}"
+        />
+      </view>
+
+      <!-- 语音录制 -->
+      <view class="voice-input-container" wx:else>
+        <view 
+          class="voice-record-btn {{isRecording ? 'recording' : ''}}"
+          bindtouchstart="onStartRecord"
+          bindtouchend="onEndRecord"
+          bindtouchcancel="onCancelRecord"
+        >
+          <text class="record-text">{{isRecording ? '松开发送' : '按住说话'}}</text>
+        </view>
+      </view>
+
+      <!-- 表情/工具按钮 -->
+      <view class="emoji-btn" bindtap="onToggleToolbar">
+        <text class="emoji-icon">{{showToolbar ? '⌨️' : '😊'}}</text>
+      </view>
+
+      <!-- 发送按钮 -->
+      <view 
+        class="send-btn {{inputText.trim() ? 'send-active' : ''}}"
+        bindtap="onSendText"
+        wx:if="{{inputType === 'text' && inputText.trim()}}"
+      >
+        <text class="send-text">发送</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 语音录制提示 -->
+  <view class="voice-recording-modal" wx:if="{{isRecording}}">
+    <view class="recording-content">
+      <view class="recording-icon">
+        <text class="record-wave">🎤</text>
+      </view>
+      <text class="recording-text">正在录音...</text>
+      <text class="recording-tip">上滑取消发送</text>
+    </view>
+  </view>
+
+  <!-- 错误提示 -->
+  <view class="error-toast" wx:if="{{showError}}">
+    <text class="error-text">{{errorMessage}}</text>
+  </view>
+</view>
