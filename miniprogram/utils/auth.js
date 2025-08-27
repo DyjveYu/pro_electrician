@@ -43,9 +43,8 @@ class AuthManager {
       const loginRes = await this.getWxLoginCode();
       
       // 调用后端登录接口
-      const response = await api.wxLogin({
-        code: loginRes.code
-      });
+      // 修改这里：直接传递code值，而不是对象 update by DyjveYu 2025.8.17
+      const response = await api.wxLogin(loginRes.code);
 
       if (response.success) {
         const { token, refreshToken, user } = response.data;
@@ -53,7 +52,7 @@ class AuthManager {
         // 保存认证信息
         this.saveAuthInfo(token, refreshToken, user);
         
-        // 连接WebSocket
+        // 连接WebSocket 
         wsManager.connect();
         
         // 通知登录成功

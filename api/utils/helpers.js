@@ -54,8 +54,9 @@ const sha256 = (text) => {
 const generateToken = (payload, expiresIn = jwtConfig.expiresIn) => {
   return jwt.sign(payload, jwtConfig.secret, {
     expiresIn,
-    issuer: jwtConfig.issuer,
-    audience: jwtConfig.audience
+    issuer: jwtConfig.options.issuer,
+    audience: jwtConfig.options.audience,
+    algorithm: jwtConfig.options.algorithm
   });
 };
 

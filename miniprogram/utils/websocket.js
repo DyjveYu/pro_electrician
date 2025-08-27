@@ -47,7 +47,7 @@ class WebSocketManager {
 
     this.socket.onOpen(() => {
       console.log('WebSocket连接成功');
-      this.isConnected = true;
+         this.isConnected = true;
       this.reconnectAttempts = 0;
       this.startHeartbeat();
       this.notifyConnectionHandlers('connected');
