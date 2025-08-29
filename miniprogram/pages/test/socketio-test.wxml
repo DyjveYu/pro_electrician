@@ -1,0 +1,49 @@
+<!--pages/test/socketio-test.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">Socket.IO连接测试</text>
+    <view class="status">
+      <text class="status-label">连接状态:</text>
+      <text class="status-value {{connectionStatus === '已连接' ? 'connected' : 'disconnected'}}">{{connectionStatus}}</text>
+    </view>
+  </view>
+
+  <view class="controls">
+    <view class="control-row">
+      <button class="btn btn-primary" bindtap="connectSocketIO">连接</button>
+      <button class="btn btn-danger" bindtap="disconnectSocketIO">断开</button>
+    </view>
+    
+    <view class="control-row">
+      <button class="btn btn-info" bindtap="sendTestMessage">发送测试消息</button>
+      <button class="btn btn-info" bindtap="sendHeartbeat">发送心跳</button>
+    </view>
+    
+    <view class="control-row">
+      <button class="btn btn-warning" bindtap="joinTestRoom">加入测试房间</button>
+      <button class="btn btn-warning" bindtap="getConnectionStatus">获取状态</button>
+    </view>
+    
+    <view class="control-row">
+      <button class="btn btn-secondary" bindtap="clearTestResults">清除结果</button>
+      <button class="btn btn-secondary" bindtap="copyTestResults">复制结果</button>
+    </view>
+  </view>
+
+  <view class="results">
+    <view class="results-header">
+      <text class="results-title">测试结果</text>
+      <text class="results-count">({{testResults.length}}条)</text>
+    </view>
+    
+    <scroll-view class="results-list" scroll-y="true">
+      <view class="result-item" wx:for="{{testResults}}" wx:key="index">
+        <text class="result-text">{{item}}</text>
+      </view>
+      
+      <view wx:if="{{testResults.length === 0}}" class="empty-results">
+        <text class="empty-text">暂无测试结果</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

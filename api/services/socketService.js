@@ -15,7 +15,8 @@ const initializeSocketService = (io) => {
   // 认证中间件
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth.token;
+      // 支持从auth或查询参数中获取token
+      const token = socket.handshake.auth.token || socket.handshake.query.token;
       if (!token) {
         return next(new Error('未提供认证令牌'));
       }

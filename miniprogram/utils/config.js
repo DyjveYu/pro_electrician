@@ -7,8 +7,8 @@ const config = {
   // API基础地址
   API_BASE_URL: 'http://localhost:3000',
   
-  // WebSocket地址
-  WS_BASE_URL: 'ws://localhost:3000',
+  // WebSocket地址 (Socket.IO)
+  WS_BASE_URL: 'ws://localhost:3000/socket.io/',
   
   // 微信小程序配置
   WX_APP_ID: 'wx5aa758717e06fc40',

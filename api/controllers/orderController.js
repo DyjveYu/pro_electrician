@@ -1,7 +1,7 @@
 const { User, Electrician, Order, Payment } = require('../models');
 const { CustomError, asyncHandler } = require('../middleware/errorHandler');
 const { businessLogger } = require('../middleware/logger');
-const { generateUniqueId, calculateDistance, formatPagination, formatPaginationResponse } = require('../utils/helpers');
+const { generateUniqueId, calculateDistance, formatPaginationResponse } = require('../utils/helpers');
 const { sendOrderNotification } = require('../services/socketService');
 const { Op } = require('sequelize');
 
@@ -95,7 +95,7 @@ const getOrders = asyncHandler(async (req, res) => {
     endDate
   } = req.query;
   
-  const { offset, pageLimit } = formatPagination(page, limit);
+  const { offset, pageLimit } = formatPaginationResponse(page, limit);
   
   // 构建查询条件
   const whereConditions = {};

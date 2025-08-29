@@ -69,29 +69,9 @@ app.use('*', (req, res) => {
 // 错误处理中间件
 app.use(errorHandler);
 
-// Socket.IO连接处理
-io.on('connection', (socket) => {
-  console.log('🔌 用户连接:', socket.id);
-  
-  // 用户认证
-  socket.on('auth', (data) => {
-    // 这里可以验证JWT token
-    socket.userId = data.userId;
-    socket.userType = data.userType;
-    console.log(`👤 用户认证成功: ${data.userId} (${data.userType})`);
-  });
-  
-  // 加入房间（按用户类型分组）
-  socket.on('join-room', (roomName) => {
-    socket.join(roomName);
-    console.log(`🏠 用户 ${socket.userId} 加入房间: ${roomName}`);
-  });
-  
-  // 断开连接
-  socket.on('disconnect', () => {
-    console.log('🔌 用户断开连接:', socket.id);
-  });
-});
+// 初始化Socket.IO服务
+const { initializeSocketService } = require('./services/socketService');
+initializeSocketService(io);
 
 // 启动服务器
 const PORT = process.env.PORT || 3000;
@@ -102,8 +82,13 @@ const startServer = async () => {
     await testConnection();
     
     // 同步数据库模型
-    await sequelize.sync({ alter: true });
-    console.log('📊 数据库模型同步完成');
+    // 仅在开发环境同步数据库
+    if (process.env.NODE_ENV === 'development') {
+      await sequelize.sync({ alter: true });
+      console.log('📊 数据库模型同步完成');
+    } else {
+      console.log('📊 生产环境跳过数据库同步');
+    }
     
     // 启动服务器
     server.listen(PORT, () => {

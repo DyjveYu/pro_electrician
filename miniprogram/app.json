@@ -1,6 +1,6 @@
 {
   "pages": [
-    "pages/auth/index/index",
+    "pages/index/index",
     "pages/auth/login/login",
     "pages/user/profile/profile",
     "pages/user/orders/orders",
@@ -13,7 +13,8 @@
     "pages/electrician/apply/apply",
     "pages/common/map/map",
     "pages/common/chat/chat",
-    "pages/test/api-test/api-test"
+    "pages/test/api-test/api-test",
+    "pages/test/socketio-test/socketio-test"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -31,7 +32,7 @@
     "borderStyle": "black",
     "list": [
       {
-        "pagePath": "pages/auth/index/index",
+        "pagePath": "pages/index/index",
         "text": "首页",
         "iconPath": "images/tab/home.png",
         "selectedIconPath": "images/tab/home-active.png"

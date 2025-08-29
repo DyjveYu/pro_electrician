@@ -1,127 +1,91 @@
 // utils/websocket.js
+// WebSocket管理类 - 现在使用Socket.IO客户端
 
-const config = require('./config');
-const storage = require('./storage');
+const socketIOClient = require('./socketio-client');
 
 /**
- * WebSocket管理类
+ * WebSocket管理类 (兼容层)
+ * 保持原有API，内部使用Socket.IO客户端
  */
 class WebSocketManager {
   constructor() {
-    this.socket = null;
-    this.isConnected = false;
-    this.reconnectTimer = null;
-    this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
-    this.reconnectInterval = 3000;
-    this.heartbeatTimer = null;
-    this.heartbeatInterval = 30000;
+    // 使用Socket.IO客户端作为底层实现
+    this.client = socketIOClient;
+    
+    // 保持兼容性的属性
     this.messageHandlers = new Map();
     this.connectionHandlers = [];
     this.errorHandlers = [];
   }
 
+  // 兼容性属性getter
+  get socket() {
+    return this.client.socket;
+  }
+
+  get isConnected() {
+    return this.client.isConnected;
+  }
+
+  get reconnectAttempts() {
+    return this.client.reconnectAttempts;
+  }
+
   /**
-   * 连接WebSocket
+   * 连接WebSocket (代理到Socket.IO客户端)
    */
   connect() {
-    if (this.socket && this.isConnected) {
-      console.log('WebSocket已连接');
-      return;
-    }
-
-    const token = storage.getToken();
-    if (!token) {
-      console.warn('未找到认证token，无法连接WebSocket');
-      return;
-    }
-
-    const url = `${config.WEBSOCKET_URL}?token=${token}`;
+    // 设置连接状态监听器
+    this.client.onConnection((status) => {
+      this.notifyConnectionHandlers(status);
+    });
     
-    console.log('正在连接WebSocket:', url);
-
-    this.socket = wx.connectSocket({
-      url,
-      protocols: ['websocket']
-    });
-
-    this.socket.onOpen(() => {
-      console.log('WebSocket连接成功');
-         this.isConnected = true;
-      this.reconnectAttempts = 0;
-      this.startHeartbeat();
-      this.notifyConnectionHandlers('connected');
-    });
-
-    this.socket.onMessage((res) => {
-      try {
-        const data = JSON.parse(res.data);
-        this.handleMessage(data);
-      } catch (error) {
-        console.error('WebSocket消息解析失败:', error);
-      }
-    });
-
-    this.socket.onClose((res) => {
-      console.log('WebSocket连接关闭:', res);
-      this.isConnected = false;
-      this.stopHeartbeat();
-      this.notifyConnectionHandlers('disconnected');
-      
-      // 非主动关闭时尝试重连
-      if (res.code !== 1000) {
-        this.scheduleReconnect();
-      }
-    });
-
-    this.socket.onError((error) => {
-      console.error('WebSocket连接错误:', error);
-      this.isConnected = false;
+    // 设置错误监听器
+    this.client.onError((error) => {
       this.notifyErrorHandlers(error);
-      this.scheduleReconnect();
     });
+    
+    // 代理到Socket.IO客户端
+    return this.client.connect();
   }
 
   /**
-   * 断开WebSocket连接
+   * 断开WebSocket连接 (代理到Socket.IO客户端)
    */
   disconnect() {
-    if (this.socket) {
-      this.socket.close({
-        code: 1000,
-        reason: '主动断开连接'
-      });
-      this.socket = null;
-    }
-    
-    this.isConnected = false;
-    this.stopHeartbeat();
-    this.clearReconnectTimer();
+    return this.client.disconnect();
   }
 
   /**
-   * 发送消息
+   * 发送消息 (代理到Socket.IO客户端)
    */
   send(data) {
-    if (!this.isConnected || !this.socket) {
-      console.warn('WebSocket未连接，无法发送消息');
-      return false;
-    }
-
-    try {
-      const message = typeof data === 'string' ? data : JSON.stringify(data);
-      this.socket.send({
-        data: message
-      });
-      return true;
-    } catch (error) {
-      console.error('WebSocket发送消息失败:', error);
-      return false;
-    }
+    return this.client.send(data);
   }
 
   /**
-   * 处理接收到的消息
+   * 发送Socket.IO事件
+   */
+  emit(eventName, data, callback) {
+    return this.client.emit(eventName, data, callback);
+  }
+
+  /**
+   * 监听Socket.IO事件
+   */
+  on(eventName, handler) {
+    return this.client.on(eventName, handler);
+  }
+
+  /**
+   * 移除Socket.IO事件监听
+   */
+  off(eventName, handler) {
+    return this.client.off(eventName, handler);
+  }
+
+  /**
+   * 处理接收到的消息 (兼容性方法)
    */
   handleMessage(data) {
     console.log('收到WebSocket消息:', data);
@@ -147,6 +111,35 @@ class WebSocketManager {
 
     // 处理通用消息类型
     this.handleCommonMessage(type, payload);
+  }
+
+  /**
+   * 添加消息处理器 (兼容性方法)
+   */
+  addMessageHandler(type, handler) {
+    if (!this.messageHandlers.has(type)) {
+      this.messageHandlers.set(type, []);
+    }
+    this.messageHandlers.get(type).push(handler);
+    
+    // 同时注册到Socket.IO客户端
+    this.client.on(type, handler);
+  }
+
+  /**
+   * 移除消息处理器 (兼容性方法)
+   */
+  removeMessageHandler(type, handler) {
+    if (this.messageHandlers.has(type)) {
+      const handlers = this.messageHandlers.get(type);
+      const index = handlers.indexOf(handler);
+      if (index > -1) {
+        handlers.splice(index, 1);
+      }
+    }
+    
+    // 同时从Socket.IO客户端移除
+    this.client.off(type, handler);
   }
 
   /**
@@ -312,54 +305,38 @@ class WebSocketManager {
   }
 
   /**
-   * 开始心跳
+   * 获取连接状态
    */
-  startHeartbeat() {
-    this.stopHeartbeat();
-    
-    this.heartbeatTimer = setInterval(() => {
-      if (this.isConnected) {
-        this.send({ type: 'ping' });
-      }
-    }, this.heartbeatInterval);
+  getConnectionStatus() {
+    return this.client.getConnectionStatus();
   }
 
   /**
-   * 停止心跳
+   * 加入房间
    */
-  stopHeartbeat() {
-    if (this.heartbeatTimer) {
-      clearInterval(this.heartbeatTimer);
-      this.heartbeatTimer = null;
-    }
+  joinRoom(roomName) {
+    return this.client.joinRoom(roomName);
   }
 
   /**
-   * 安排重连
+   * 离开房间
    */
-  scheduleReconnect() {
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.log('达到最大重连次数，停止重连');
-      return;
-    }
-
-    this.clearReconnectTimer();
-    
-    this.reconnectTimer = setTimeout(() => {
-      this.reconnectAttempts++;
-      console.log(`第${this.reconnectAttempts}次重连WebSocket`);
-      this.connect();
-    }, this.reconnectInterval);
+  leaveRoom(roomName) {
+    return this.client.leaveRoom(roomName);
   }
 
   /**
-   * 清除重连定时器
+   * 更新位置 (电工)
    */
-  clearReconnectTimer() {
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
+  updateLocation(latitude, longitude) {
+    return this.client.updateLocation(latitude, longitude);
+  }
+
+  /**
+   * 发送心跳 (兼容性方法)
+   */
+  sendHeartbeat() {
+    return this.client.sendHeartbeat();
   }
 
   /**
