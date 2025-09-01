@@ -278,8 +278,7 @@ class API {
    * 微信登录
    */
   wxLogin(code) {
-    return this.post('/api/auth/wechat-login', { code });
-    // AI 代码错误，原代码是：/api/auth/wx-login 
+    return this.post('/api/auth/wx-login', { code });
   }
 
   /**
