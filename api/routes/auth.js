@@ -15,11 +15,11 @@ const { authMiddleware, optionalAuth } = require('../middleware/auth');
 const { uploadAvatar, upload } = require('../middleware/upload');
 
 /**
- * @route POST /api/auth/wechat-login
+ * @route POST /api/auth/wx-login
  * @desc 微信小程序登录
  * @access Public
  */
-router.post('/wechat-login', wechatLogin);
+router.post('/wx-login', wechatLogin);
 
 /**
  * @route POST /api/auth/phone-login

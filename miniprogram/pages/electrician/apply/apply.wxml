@@ -75,38 +75,7 @@
         </view>
       </view>
 
-      <!-- 工作经验 -->
-      <view class="form-section">
-        <view class="section-title">
-          <view class="title-icon">🔧</view>
-          <text class="title-text">工作经验</text>
-        </view>
-        
-        <view class="form-item">
-          <text class="form-label">从业年限 <text class="required">*</text></text>
-          <picker name="experience" range="{{experienceOptions}}" range-key="text" value="{{formData.experienceIndex}}" bindchange="onExperienceChange">
-            <view class="picker-input">
-              <text class="picker-text">{{experienceOptions[formData.experienceIndex].text}}</text>
-              <text class="picker-arrow">›</text>
-            </view>
-          </picker>
-        </view>
-        
-        <view class="form-item">
-          <text class="form-label">专业技能 <text class="required">*</text></text>
-          <view class="skill-tags">
-            <view wx:for="{{skillOptions}}" wx:key="value" class="skill-tag skill-{{item.selected ? 'selected' : 'unselected'}}" bindtap="onSkillToggle" data-index="{{index}}">
-              <text class="skill-text">{{item.text}}</text>
-            </view>
-          </view>
-        </view>
-        
-        <view class="form-item">
-          <text class="form-label">工作描述</text>
-          <textarea class="form-textarea" name="workDescription" value="{{formData.workDescription}}" placeholder="请简要描述您的工作经验和专业技能" bindinput="onInputChange" data-field="workDescription" maxlength="500"></textarea>
-          <view class="textarea-counter">{{formData.workDescription.length}}/500</view>
-        </view>
-      </view>
+
 
       <!-- 服务区域 -->
       <view class="form-section">
@@ -182,40 +151,20 @@
           </view>
         </view>
         
-        <!-- 技能证书 -->
-        <view class="upload-item">
-          <text class="upload-label">技能证书</text>
-          <text class="upload-desc">请上传相关技能证书（可选，有助于提高通过率）</text>
-          <view class="upload-list">
-            <view wx:for="{{formData.certificates}}" wx:key="index" class="upload-preview" bindtap="onPreviewImage" data-current="{{item}}" data-urls="{{formData.certificates}}">
-              <image class="preview-image" src="{{item}}" mode="aspectFill"></image>
-              <view class="upload-delete" bindtap="onDeleteCertificate" data-index="{{index}}" catchtap="">
-                <text class="delete-icon">×</text>
-              </view>
-            </view>
-            <view wx:if="{{formData.certificates.length < 5}}" class="upload-placeholder" bindtap="onChooseCertificate">
-              <text class="upload-icon">📷</text>
-              <text class="upload-text">添加证书</text>
-            </view>
-          </view>
+        <!-- 低压电工作业证 -->
+        <view class="form-item">
+          <text class="form-label">低压电工作业证号 <text class="required">*</text></text>
+          <input class="form-input" name="certificateNumber" value="{{formData.certificateNumber}}" placeholder="请输入低压电工作业证号" bindinput="onInputChange" data-field="certificateNumber" />
         </view>
         
-        <!-- 工作照片 -->
-        <view class="upload-item">
-          <text class="upload-label">工作照片</text>
-          <text class="upload-desc">请上传工作现场照片（可选，展示专业形象）</text>
-          <view class="upload-list">
-            <view wx:for="{{formData.workPhotos}}" wx:key="index" class="upload-preview" bindtap="onPreviewImage" data-current="{{item}}" data-urls="{{formData.workPhotos}}">
-              <image class="preview-image" src="{{item}}" mode="aspectFill"></image>
-              <view class="upload-delete" bindtap="onDeleteWorkPhoto" data-index="{{index}}" catchtap="">
-                <text class="delete-icon">×</text>
-              </view>
+        <view class="form-item">
+          <text class="form-label">有效期限 <text class="required">*</text></text>
+          <picker name="expiryDate" mode="date" value="{{formData.expiryDate}}" bindchange="onExpiryDateChange">
+            <view class="picker-input">
+              <text class="picker-text">{{formData.expiryDate || '请选择有效期限'}}</text>
+              <text class="picker-arrow">›</text>
             </view>
-            <view wx:if="{{formData.workPhotos.length < 5}}" class="upload-placeholder" bindtap="onChooseWorkPhoto">
-              <text class="upload-icon">📷</text>
-              <text class="upload-text">添加照片</text>
-            </view>
-          </view>
+          </picker>
         </view>
       </view>
 

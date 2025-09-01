@@ -2,8 +2,7 @@
 
 const api = require('./api');
 const storage = require('./storage');
-const config = require('./config');
-const wsManager = require('./websocket');
+//const config = require('./config');
 
 /**
  * 认证管理类
@@ -52,9 +51,6 @@ class AuthManager {
         // 保存认证信息
         this.saveAuthInfo(token, refreshToken, user);
         
-        // 连接WebSocket 
-        wsManager.connect();
-        
         // 通知登录成功
         this.notifyLoginHandlers(user);
         
@@ -73,19 +69,13 @@ class AuthManager {
    */
   async phoneLogin(phone, code) {
     try {
-      const response = await api.auth.phoneLogin({
-        phone,
-        code
-      });
+      const response = await api.phoneLogin(phone, code);
 
       if (response.success) {
         const { token, refreshToken, user } = response.data;
         
         // 保存认证信息
         this.saveAuthInfo(token, refreshToken, user);
-        
-        // 连接WebSocket
-        wsManager.connect();
         
         // 通知登录成功
         this.notifyLoginHandlers(user);
@@ -105,10 +95,7 @@ class AuthManager {
    */
   async bindPhone(phone, code) {
     try {
-      const response = await api.auth.bindPhone({
-        phone,
-        code
-      });
+      const response = await api.bindPhone(phone, code);
 
       if (response.success) {
         const { user } = response.data;
@@ -132,10 +119,7 @@ class AuthManager {
    */
   async sendSmsCode(phone, type = 'login') {
     try {
-      const response = await api.auth.sendSmsCode({
-        phone,
-        type
-      });
+      const response = await api.sendSmsCode(phone);
 
       if (response.success) {
         return { success: true };
@@ -192,16 +176,9 @@ class AuthManager {
     return new Promise((resolve, reject) => {
       if (e.detail.errMsg === 'getPhoneNumber:ok') {
         // 将加密数据发送到后端解密
-        api.auth.decryptPhone({
-          encryptedData: e.detail.encryptedData,
-          iv: e.detail.iv
-        }).then(response => {
-          if (response.success) {
-            resolve(response.data.phoneNumber);
-          } else {
-            reject(new Error(response.message || '获取手机号失败'));
-          }
-        }).catch(reject);
+        // TODO: 需要在API中添加decryptPhone方法
+        console.warn('decryptPhone方法需要在API中实现');
+        reject(new Error('decryptPhone方法暂未实现'));
       } else {
         reject(new Error('用户拒绝授权手机号'));
       }
@@ -218,9 +195,7 @@ class AuthManager {
         throw new Error('没有刷新token');
       }
 
-      const response = await api.auth.refreshToken({
-        refreshToken
-      });
+      const response = await api.refreshToken();
 
       if (response.success) {
         const { token, refreshToken: newRefreshToken } = response.data;
@@ -249,16 +224,13 @@ class AuthManager {
   async logout() {
     try {
       // 调用后端登出接口
-      await api.auth.logout();
+      await api.logout();
     } catch (error) {
       console.error('登出接口调用失败:', error);
     }
 
     // 清除本地认证信息
     this.clearAuthInfo();
-    
-    // 断开WebSocket连接
-    wsManager.disconnect();
     
     // 通知登出
     this.notifyLogoutHandlers();
@@ -269,7 +241,7 @@ class AuthManager {
    */
   async updateUserInfo(userInfo) {
     try {
-      const response = await api.auth.updateProfile(userInfo);
+      const response = await api.updateUserInfo(userInfo);
 
       if (response.success) {
         const { user } = response.data;
@@ -293,19 +265,9 @@ class AuthManager {
    */
   async switchUserType(userType) {
     try {
-      const response = await api.auth.switchUserType({
-        userType
-      });
-
-      if (response.success) {
-        // 更新用户类型
-        this.userType = userType;
-        storage.setUserType(userType);
-        
-        return { success: true };
-      } else {
-        throw new Error(response.message || '切换失败');
-      }
+      // TODO: 需要在API中添加switchUserType方法
+       console.warn('switchUserType方法需要在API中实现');
+       throw new Error('switchUserType方法暂未实现');
     } catch (error) {
       console.error('切换用户类型失败:', error);
       throw error;
@@ -322,7 +284,7 @@ class AuthManager {
 
     try {
       // 验证token有效性
-      const response = await api.auth.verifyToken();
+      const response = await api.checkLoginStatus();
       
       if (response.success) {
         return true;

@@ -15,36 +15,16 @@ Page({
       phone: '',
       age: '',
       gender: 'male',
-      experienceIndex: 0,
-      workDescription: '',
       cityIndex: 0,
       address: '',
       idCardFront: '',
       idCardBack: '',
-      certificates: [],
-      workPhotos: [],
+      certificateNumber: '',
+      expiryDate: '',
       agreeTerms: false
     },
     
     // 选项数据
-    experienceOptions: [
-      { value: '0-1', text: '1年以下' },
-      { value: '1-3', text: '1-3年' },
-      { value: '3-5', text: '3-5年' },
-      { value: '5-10', text: '5-10年' },
-      { value: '10+', text: '10年以上' }
-    ],
-    
-    skillOptions: [
-      { value: 'electrical_repair', text: '电路维修', selected: false },
-      { value: 'appliance_repair', text: '家电维修', selected: false },
-      { value: 'lighting_install', text: '灯具安装', selected: false },
-      { value: 'switch_repair', text: '开关维修', selected: false },
-      { value: 'wiring', text: '布线安装', selected: false },
-      { value: 'panel_repair', text: '配电箱维修', selected: false },
-      { value: 'motor_repair', text: '电机维修', selected: false },
-      { value: 'other', text: '其他', selected: false }
-    ],
     
     cityOptions: [
       { value: 'beijing', text: '北京市' },
@@ -117,24 +97,12 @@ Page({
     });
   },
 
-  // 经验选择
-  onExperienceChange(e) {
-    const index = parseInt(e.detail.value);
+  // 有效期限选择
+  onExpiryDateChange(e) {
     this.setData({
-      'formData.experienceIndex': index
+      'formData.expiryDate': e.detail.value
     });
     
-    this.validateForm();
-  },
-
-  // 技能切换
-  onSkillToggle(e) {
-    const index = e.currentTarget.dataset.index;
-    const skillOptions = this.data.skillOptions;
-    
-    skillOptions[index].selected = !skillOptions[index].selected;
-    
-    this.setData({ skillOptions });
     this.validateForm();
   },
 
@@ -190,33 +158,7 @@ Page({
     });
   },
 
-  // 选择证书图片
-  onChooseCertificate() {
-    wx.chooseImage({
-      count: 5 - this.data.formData.certificates.length,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: (res) => {
-        res.tempFilePaths.forEach(filePath => {
-          this.uploadCertificate(filePath);
-        });
-      }
-    });
-  },
 
-  // 选择工作照片
-  onChooseWorkPhoto() {
-    wx.chooseImage({
-      count: 5 - this.data.formData.workPhotos.length,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: (res) => {
-        res.tempFilePaths.forEach(filePath => {
-          this.uploadWorkPhoto(filePath);
-        });
-      }
-    });
-  },
 
   // 上传图片
   async uploadImage(filePath, field) {
@@ -257,81 +199,7 @@ Page({
     }
   },
 
-  // 上传证书
-  async uploadCertificate(filePath) {
-    try {
-      wx.showLoading({ title: '上传中...' });
-      
-      const res = await api.uploadFile({
-        filePath,
-        name: 'image',
-        formData: {
-          type: 'certificate'
-        }
-      });
-      
-      wx.hideLoading();
-      
-      if (res.success) {
-        const certificates = [...this.data.formData.certificates, res.data.url];
-        this.setData({
-          'formData.certificates': certificates
-        });
-        
-        wx.showToast({
-          title: '上传成功',
-          icon: 'success'
-        });
-      } else {
-        throw new Error(res.message);
-      }
-    } catch (error) {
-      wx.hideLoading();
-      console.error('上传证书失败:', error);
-      wx.showToast({
-        title: error.message || '上传失败',
-        icon: 'none'
-      });
-    }
-  },
 
-  // 上传工作照片
-  async uploadWorkPhoto(filePath) {
-    try {
-      wx.showLoading({ title: '上传中...' });
-      
-      const res = await api.uploadFile({
-        filePath,
-        name: 'image',
-        formData: {
-          type: 'work_photo'
-        }
-      });
-      
-      wx.hideLoading();
-      
-      if (res.success) {
-        const workPhotos = [...this.data.formData.workPhotos, res.data.url];
-        this.setData({
-          'formData.workPhotos': workPhotos
-        });
-        
-        wx.showToast({
-          title: '上传成功',
-          icon: 'success'
-        });
-      } else {
-        throw new Error(res.message);
-      }
-    } catch (error) {
-      wx.hideLoading();
-      console.error('上传工作照片失败:', error);
-      wx.showToast({
-        title: error.message || '上传失败',
-        icon: 'none'
-      });
-    }
-  },
 
   // 删除图片
   onDeleteImage(e) {
@@ -352,45 +220,7 @@ Page({
     });
   },
 
-  // 删除证书
-  onDeleteCertificate(e) {
-    const index = e.currentTarget.dataset.index;
-    
-    wx.showModal({
-      title: '删除证书',
-      content: '确定要删除这张证书吗？',
-      success: (res) => {
-        if (res.confirm) {
-          const certificates = this.data.formData.certificates;
-          certificates.splice(index, 1);
-          
-          this.setData({
-            'formData.certificates': certificates
-          });
-        }
-      }
-    });
-  },
 
-  // 删除工作照片
-  onDeleteWorkPhoto(e) {
-    const index = e.currentTarget.dataset.index;
-    
-    wx.showModal({
-      title: '删除照片',
-      content: '确定要删除这张照片吗？',
-      success: (res) => {
-        if (res.confirm) {
-          const workPhotos = this.data.formData.workPhotos;
-          workPhotos.splice(index, 1);
-          
-          this.setData({
-            'formData.workPhotos': workPhotos
-          });
-        }
-      }
-    });
-  },
 
   // 预览图片
   onPreviewImage(e) {
@@ -405,15 +235,12 @@ Page({
 
   // 表单验证
   validateForm() {
-    const { formData, skillOptions, areaOptions } = this.data;
+    const { formData, areaOptions } = this.data;
     
     // 基本信息验证
     const hasBasicInfo = formData.realName && 
                         formData.idCard && 
                         formData.phone;
-    
-    // 技能验证
-    const hasSkills = skillOptions.some(skill => skill.selected);
     
     // 区域验证
     const hasAreas = areaOptions.some(area => area.selected);
@@ -421,10 +248,13 @@ Page({
     // 身份证验证
     const hasIdCard = formData.idCardFront && formData.idCardBack;
     
+    // 证书信息验证
+    const hasCertificate = formData.certificateNumber && formData.expiryDate;
+    
     // 协议验证
     const agreeTerms = formData.agreeTerms;
     
-    const canSubmit = hasBasicInfo && hasSkills && hasAreas && hasIdCard && agreeTerms;
+    const canSubmit = hasBasicInfo && hasAreas && hasIdCard && hasCertificate && agreeTerms;
     
     this.setData({ canSubmit });
   },
@@ -444,7 +274,7 @@ Page({
       
       const formData = this.formatFormData();
       
-      const res = await api.submitElectricianApplication(formData);
+      const res = await api.applyElectrician(formData);
       
       if (res.success) {
         wx.showToast({
@@ -474,12 +304,7 @@ Page({
 
   // 格式化表单数据
   formatFormData() {
-    const { formData, skillOptions, areaOptions, experienceOptions, cityOptions } = this.data;
-    
-    // 获取选中的技能
-    const selectedSkills = skillOptions
-      .filter(skill => skill.selected)
-      .map(skill => skill.value);
+    const { formData, areaOptions, cityOptions } = this.data;
     
     // 获取选中的区域
     const selectedAreas = areaOptions
@@ -492,16 +317,13 @@ Page({
       phone: formData.phone,
       age: parseInt(formData.age) || null,
       gender: formData.gender,
-      experience: experienceOptions[formData.experienceIndex].value,
-      skills: selectedSkills,
-      workDescription: formData.workDescription,
       city: cityOptions[formData.cityIndex].value,
       serviceAreas: selectedAreas,
       address: formData.address,
       idCardFront: formData.idCardFront,
       idCardBack: formData.idCardBack,
-      certificates: formData.certificates,
-      workPhotos: formData.workPhotos
+      certificateNumber: formData.certificateNumber,
+      expiryDate: formData.expiryDate
     };
   },
 
