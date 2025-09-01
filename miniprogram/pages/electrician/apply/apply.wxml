@@ -116,40 +116,7 @@
           <text class="title-text">资质证明</text>
         </view>
         
-        <!-- 身份证照片 -->
-        <view class="upload-item">
-          <text class="upload-label">身份证照片 <text class="required">*</text></text>
-          <text class="upload-desc">请上传身份证正反面照片</text>
-          <view class="upload-grid">
-            <view class="upload-card">
-              <view class="upload-title">身份证正面</view>
-              <view wx:if="{{formData.idCardFront}}" class="upload-preview" bindtap="onPreviewImage" data-current="{{formData.idCardFront}}" data-urls="{{[formData.idCardFront]}}">
-                <image class="preview-image" src="{{formData.idCardFront}}" mode="aspectFill"></image>
-                <view class="upload-delete" bindtap="onDeleteImage" data-field="idCardFront" catchtap="">
-                  <text class="delete-icon">×</text>
-                </view>
-              </view>
-              <view wx:else class="upload-placeholder" bindtap="onChooseImage" data-field="idCardFront">
-                <text class="upload-icon">📷</text>
-                <text class="upload-text">点击上传</text>
-              </view>
-            </view>
-            
-            <view class="upload-card">
-              <view class="upload-title">身份证反面</view>
-              <view wx:if="{{formData.idCardBack}}" class="upload-preview" bindtap="onPreviewImage" data-current="{{formData.idCardBack}}" data-urls="{{[formData.idCardBack]}}">
-                <image class="preview-image" src="{{formData.idCardBack}}" mode="aspectFill"></image>
-                <view class="upload-delete" bindtap="onDeleteImage" data-field="idCardBack" catchtap="">
-                  <text class="delete-icon">×</text>
-                </view>
-              </view>
-              <view wx:else class="upload-placeholder" bindtap="onChooseImage" data-field="idCardBack">
-                <text class="upload-icon">📷</text>
-                <text class="upload-text">点击上传</text>
-              </view>
-            </view>
-          </view>
-        </view>
+
         
         <!-- 低压电工作业证 -->
         <view class="form-item">
@@ -158,10 +125,20 @@
         </view>
         
         <view class="form-item">
-          <text class="form-label">有效期限 <text class="required">*</text></text>
-          <picker name="expiryDate" mode="date" value="{{formData.expiryDate}}" bindchange="onExpiryDateChange">
+          <text class="form-label">证书开始日期 <text class="required">*</text></text>
+          <picker name="startDate" mode="date" value="{{formData.startDate}}" bindchange="onStartDateChange">
             <view class="picker-input">
-              <text class="picker-text">{{formData.expiryDate || '请选择有效期限'}}</text>
+              <text class="picker-text">{{formData.startDate || '请选择证书开始日期'}}</text>
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">证书截止日期 <text class="required">*</text></text>
+          <picker name="endDate" mode="date" value="{{formData.endDate}}" bindchange="onEndDateChange">
+            <view class="picker-input">
+              <text class="picker-text">{{formData.endDate || '请选择证书截止日期'}}</text>
               <text class="picker-arrow">›</text>
             </view>
           </picker>

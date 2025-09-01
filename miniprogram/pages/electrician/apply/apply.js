@@ -17,10 +17,9 @@ Page({
       gender: 'male',
       cityIndex: 0,
       address: '',
-      idCardFront: '',
-      idCardBack: '',
       certificateNumber: '',
-      expiryDate: '',
+      startDate: '',
+      endDate: '',
       agreeTerms: false
     },
     
@@ -97,10 +96,19 @@ Page({
     });
   },
 
-  // 有效期限选择
-  onExpiryDateChange(e) {
+  // 证书开始日期选择
+  onStartDateChange(e) {
     this.setData({
-      'formData.expiryDate': e.detail.value
+      'formData.startDate': e.detail.value
+    });
+    
+    this.validateForm();
+  },
+
+  // 证书截止日期选择
+  onEndDateChange(e) {
+    this.setData({
+      'formData.endDate': e.detail.value
     });
     
     this.validateForm();
@@ -143,95 +151,19 @@ Page({
     });
   },
 
-  // 选择身份证图片
-  onChooseImage(e) {
-    const field = e.currentTarget.dataset.field;
-    
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: (res) => {
-        const tempFilePath = res.tempFilePaths[0];
-        this.uploadImage(tempFilePath, field);
-      }
-    });
-  },
 
 
 
-  // 上传图片
-  async uploadImage(filePath, field) {
-    try {
-      wx.showLoading({ title: '上传中...' });
-      
-      const res = await api.uploadFile({
-        filePath,
-        name: 'image',
-        formData: {
-          type: 'id_card'
-        }
-      });
-      
-      wx.hideLoading();
-      
-      if (res.success) {
-        this.setData({
-          [`formData.${field}`]: res.data.url
-        });
-        
-        this.validateForm();
-        
-        wx.showToast({
-          title: '上传成功',
-          icon: 'success'
-        });
-      } else {
-        throw new Error(res.message);
-      }
-    } catch (error) {
-      wx.hideLoading();
-      console.error('上传图片失败:', error);
-      wx.showToast({
-        title: error.message || '上传失败',
-        icon: 'none'
-      });
-    }
-  },
 
 
 
-  // 删除图片
-  onDeleteImage(e) {
-    const field = e.currentTarget.dataset.field;
-    
-    wx.showModal({
-      title: '删除图片',
-      content: '确定要删除这张图片吗？',
-      success: (res) => {
-        if (res.confirm) {
-          this.setData({
-            [`formData.${field}`]: ''
-          });
-          
-          this.validateForm();
-        }
-      }
-    });
-  },
 
 
 
-  // 预览图片
-  onPreviewImage(e) {
-    const current = e.currentTarget.dataset.current;
-    const urls = e.currentTarget.dataset.urls;
-    
-    wx.previewImage({
-      current,
-      urls
-    });
-  },
+
+
+
+
 
   // 表单验证
   validateForm() {
@@ -245,16 +177,13 @@ Page({
     // 区域验证
     const hasAreas = areaOptions.some(area => area.selected);
     
-    // 身份证验证
-    const hasIdCard = formData.idCardFront && formData.idCardBack;
-    
     // 证书信息验证
-    const hasCertificate = formData.certificateNumber && formData.expiryDate;
+    const hasCertificate = formData.certificateNumber && formData.startDate && formData.endDate;
     
     // 协议验证
     const agreeTerms = formData.agreeTerms;
     
-    const canSubmit = hasBasicInfo && hasAreas && hasIdCard && hasCertificate && agreeTerms;
+    const canSubmit = hasBasicInfo && hasAreas && hasCertificate && agreeTerms;
     
     this.setData({ canSubmit });
   },
@@ -320,10 +249,9 @@ Page({
       city: cityOptions[formData.cityIndex].value,
       serviceAreas: selectedAreas,
       address: formData.address,
-      idCardFront: formData.idCardFront,
-      idCardBack: formData.idCardBack,
       certificateNumber: formData.certificateNumber,
-      expiryDate: formData.expiryDate
+      startDate: formData.startDate,
+      endDate: formData.endDate
     };
   },
 

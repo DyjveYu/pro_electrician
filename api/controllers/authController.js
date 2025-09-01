@@ -286,14 +286,15 @@ const applyElectrician = asyncHandler(async (req, res) => {
     idCard,
     phone,
     certificateNumber,
-    expiryDate,
+    startDate,
+    endDate,
     serviceAreas,
     city,
     address
   } = req.body;
   
   // 验证必填字段
-  if (!realName || !idCard || !phone || !certificateNumber || !expiryDate) {
+  if (!realName || !idCard || !phone || !certificateNumber || !startDate || !endDate) {
     throw new CustomError('请填写完整的申请信息', 400);
   }
   
@@ -326,7 +327,8 @@ const applyElectrician = asyncHandler(async (req, res) => {
     user_id: userId,
     certificate_number: certificateNumber,
     certificate_type: 'low_voltage',
-    certificate_expiry_date: expiryDate,
+    certificate_start_date: startDate,
+    certificate_expiry_date: endDate,
     service_areas: serviceAreas || [],
     verification_status: 'pending',
     work_status: 'offline'
@@ -335,7 +337,8 @@ const applyElectrician = asyncHandler(async (req, res) => {
   businessLogger('electrician_apply', {
     userId,
     certificateNumber,
-    expiryDate
+    startDate,
+    endDate
   }, userId);
   
   res.json({

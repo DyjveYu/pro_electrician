@@ -24,10 +24,15 @@ const Electrician = sequelize.define('Electrician', {
     allowNull: false,
     comment: '电工证类型：低压、高压、特种作业'
   },
+  certificate_start_date: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    comment: '电工证开始日期'
+  },
   certificate_expiry_date: {
     type: DataTypes.DATEONLY,
     allowNull: true,
-    comment: '电工证有效期限'
+    comment: '电工证截止日期'
   },
   certificate_images: {
     type: DataTypes.JSON,
