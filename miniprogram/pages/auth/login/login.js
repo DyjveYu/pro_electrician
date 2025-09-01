@@ -101,9 +101,9 @@ Page({
    * 检查是否可以登录
    */
   checkCanLogin() {
-    const { phoneNumber, verifyCode, agreedToTerms } = this.data;
+    const { phoneNumber, agreedToTerms } = this.data;
+    // 暂时注释掉验证码验证，只验证手机号和用户协议
     const canLogin = validatePhone(phoneNumber) && 
-                    verifyCode.length === 6 && 
                     agreedToTerms;
     
     this.setData({ canLogin });
