@@ -160,12 +160,19 @@ Page({
    */
   async getCurrentLocation() {
     try {
-      const location = await location.getCurrentLocation();
+      const currentLocation = await location.getCurrentLocation();
       this.setData({
-        currentLocation: location
+        currentLocation
       });
     } catch (error) {
       console.error('获取位置失败:', error);
+      // 在开发环境下使用模拟数据
+      this.setData({
+        currentLocation: {
+          latitude: 39.908823,
+          longitude: 116.397470
+        }
+      });
     }
   },
 
@@ -339,26 +346,57 @@ Page({
    * 选择地址
    */
   selectAddress() {
+    // 先检查位置权限
+    wx.getSetting({
+      success: (res) => {
+        if (res.authSetting['scope.userLocation'] === false) {
+          // 用户拒绝过位置权限
+          wx.showModal({
+            title: '需要位置权限',
+            content: '选择地址需要获取您的位置权限，请在设置中开启',
+            confirmText: '去设置',
+            success: (modalRes) => {
+              if (modalRes.confirm) {
+                wx.openSetting({
+                  success: (settingRes) => {
+                    if (settingRes.authSetting['scope.userLocation']) {
+                      this.doChooseLocation();
+                    }
+                  }
+                });
+              }
+            }
+          });
+        } else {
+          this.doChooseLocation();
+        }
+      }
+    });
+  },
+
+  /**
+   * 执行地址选择
+   */
+  doChooseLocation() {
     wx.chooseLocation({
       success: (res) => {
         this.setData({
-          'orderInfo.address': res.address
+          'orderInfo.address': res.address,
+          'orderInfo.latitude': res.latitude,
+          'orderInfo.longitude': res.longitude
         });
       },
       fail: (error) => {
         console.error('选择地址失败:', error);
-        if (error.errMsg.includes('auth deny')) {
-          wx.showModal({
-            title: '需要位置权限',
-            content: '请在设置中开启位置权限',
-            confirmText: '去设置',
-            success: (res) => {
-              if (res.confirm) {
-                wx.openSetting();
-              }
-            }
-          });
+        if (error.errMsg.includes('cancel')) {
+          // 用户取消选择
+          return;
         }
+        
+        wx.showToast({
+          title: '选择地址失败，请重试',
+          icon: 'none'
+        });
       }
     });
   },
@@ -430,11 +468,11 @@ Page({
     
     try {
       const uploadPromises = filePaths.map(filePath => {
-        return api.uploadFile(filePath, 'work-images');
+        return api.upload('/api/auth/upload-image', filePath);
       });
       
       const results = await Promise.all(uploadPromises);
-      const imageUrls = results.map(result => result.url);
+      const imageUrls = results.flatMap(result => result.data.urls);
       
       this.setData({
         uploadedImages: [...this.data.uploadedImages, ...imageUrls],

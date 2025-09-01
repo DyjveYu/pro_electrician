@@ -30,6 +30,27 @@ class LocationManager {
         return;
       }
 
+      // 开发环境使用模拟数据
+      if (config.DEV.DEBUG && config.DEV.ENABLE_MOCK) {
+        const mockLocation = {
+          latitude: 39.908823, // 北京天安门坐标
+          longitude: 116.397470,
+          accuracy: 20,
+          altitude: 0,
+          verticalAccuracy: 0,
+          horizontalAccuracy: 20,
+          speed: 0,
+          timestamp: Date.now()
+        };
+        
+        console.log('开发环境：使用模拟位置数据', mockLocation);
+        this.currentLocation = mockLocation;
+        storage.setLocation(mockLocation);
+        this.notifyLocationHandlers(mockLocation);
+        resolve(mockLocation);
+        return;
+      }
+
       const defaultOptions = {
         type: 'gcj02',
         altitude: false,
@@ -59,8 +80,28 @@ class LocationManager {
         },
         fail: (error) => {
           console.error('获取位置失败:', error);
-          this.notifyErrorHandlers(error);
-          reject(error);
+          // 在开发环境下，如果获取位置失败，使用模拟数据
+          if (config.DEV.DEBUG) {
+            const mockLocation = {
+              latitude: 39.908823,
+              longitude: 116.397470,
+              accuracy: 20,
+              altitude: 0,
+              verticalAccuracy: 0,
+              horizontalAccuracy: 20,
+              speed: 0,
+              timestamp: Date.now()
+            };
+            
+            console.log('获取位置失败，使用模拟位置数据', mockLocation);
+            this.currentLocation = mockLocation;
+            storage.setLocation(mockLocation);
+            this.notifyLocationHandlers(mockLocation);
+            resolve(mockLocation);
+          } else {
+            this.notifyErrorHandlers(error);
+            reject(error);
+          }
         }
       });
     });

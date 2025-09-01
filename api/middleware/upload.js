@@ -79,7 +79,7 @@ const uploadAvatar = multer({
     fileSize: 2 * 1024 * 1024, // 2MB
     files: 1
   }
-}).single('avatar');
+}).single('file');
 
 // 证书上传中间件
 const uploadCertificate = multer({

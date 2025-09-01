@@ -35,6 +35,18 @@ class WebSocketManager {
    * 连接WebSocket (代理到Socket.IO客户端)
    */
   connect() {
+    const config = require('./config');
+    
+    // 检查WebSocket是否启用
+    if (!config.WEBSOCKET.ENABLED) {
+      console.log('WebSocket功能已禁用');
+      // 模拟连接成功，避免影响其他功能
+      setTimeout(() => {
+        this.notifyConnectionHandlers('disabled');
+      }, 100);
+      return;
+    }
+    
     // 设置连接状态监听器
     this.client.onConnection((status) => {
       this.notifyConnectionHandlers(status);

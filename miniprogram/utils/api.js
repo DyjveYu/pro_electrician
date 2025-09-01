@@ -314,7 +314,7 @@ class API {
    * 更新用户信息
    */
   updateUserInfo(data) {
-    return this.put('/api/auth/update-profile', data);
+    return this.put('/api/auth/profile', data);
   }
 
   /**

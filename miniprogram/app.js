@@ -31,7 +31,7 @@ App({
   onShow() {
     console.log('小程序显示');
     
-    // 连接WebSocket
+    // 连接WebSocket (如果启用)
     if (this.globalData.isLogin) {
       this.connectSocket();
     }
@@ -139,6 +139,13 @@ App({
 
   // 连接WebSocket
   connectSocket() {
+    // 检查WebSocket是否启用
+    const config = require('./utils/config');
+    if (!config.WEBSOCKET.ENABLED) {
+      console.log('WebSocket功能已禁用，跳过连接');
+      return;
+    }
+    
     if (this.globalData.socketConnected) {
       return;
     }

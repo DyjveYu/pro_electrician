@@ -15,17 +15,27 @@ const initializeSocketService = (io) => {
   // 认证中间件
   io.use(async (socket, next) => {
     try {
+      console.log('Socket.IO连接握手:', {
+        headers: socket.handshake.headers,
+        query: socket.handshake.query,
+        auth: socket.handshake.auth
+      });
+      
       // 支持从auth或查询参数中获取token
       const token = socket.handshake.auth.token || socket.handshake.query.token;
       if (!token) {
+        console.error('Socket.IO认证失败: 未提供认证令牌');
         return next(new Error('未提供认证令牌'));
       }
 
       // 验证JWT令牌
       const decoded = jwt.verify(token, jwtConfig.secret);
+      console.log('Socket.IO令牌解析成功:', { userId: decoded.userId });
+      
       const user = await User.findByPk(decoded.userId);
       
       if (!user) {
+        console.error('Socket.IO认证失败: 用户不存在', { userId: decoded.userId });
         return next(new Error('用户不存在'));
       }
 
@@ -34,15 +44,21 @@ const initializeSocketService = (io) => {
       socket.userType = user.user_type;
       socket.openid = user.openid;
       
+      console.log('Socket.IO认证成功:', { userId: user.id, userType: user.user_type });
       next();
     } catch (error) {
-      next(new Error('认证失败'));
+      console.error('Socket.IO认证失败:', error);
+      next(new Error('认证失败: ' + error.message));
     }
   });
 
   // 连接处理
   io.on('connection', (socket) => {
-    console.log(`🔗 用户连接: ${socket.userId} (${socket.userType})`);
+    console.log(`🔗 用户连接: ${socket.userId} (${socket.userType})`, {
+      socketId: socket.id,
+      transport: socket.conn.transport.name,
+      remoteAddress: socket.handshake.address
+    });
     
     // 记录连接信息
     const connectionInfo = {
@@ -98,6 +114,13 @@ const initializeSocketService = (io) => {
       handleSendMessage(socket, data);
     });
 
+    // 处理认证事件
+    socket.on('auth', (data) => {
+      console.log(`🔑 用户认证事件: ${socket.userId}`);
+      // 认证已在中间件中完成，这里只需确认认证成功
+      socket.emit('auth_success', { userId: socket.userId, userType: socket.userType });
+    });
+    
     // 处理心跳
     socket.on('heartbeat', () => {
       updateLastActivity(socket.userId, socket.userType);

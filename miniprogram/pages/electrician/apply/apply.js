@@ -1,7 +1,7 @@
 // 电工申请页面
 const app = getApp();
 const api = require('../../../utils/api');
-const util = require('../../../utils/util');
+const util = require('../../../utils/utils');
 
 Page({
   data: {

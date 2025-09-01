@@ -2,6 +2,7 @@
 const app = getApp()
 const api = require('../../../utils/api')
 const util = require('../../../utils/utils')
+const storage = require('../../../utils/storage')
 
 Page({
   /**
@@ -110,8 +111,9 @@ Page({
         const userInfo = userResponse.data
         this.setData({ userInfo })
         
-        // 更新全局用户信息
+        // 更新全局用户信息和本地存储
         app.globalData.userInfo = userInfo
+        storage.setUserInfo(userInfo)
       }
       
       // 更新统计数据
@@ -198,10 +200,11 @@ Page({
       if (response.success) {
         // 更新头像
         const userInfo = { ...this.data.userInfo }
-        userInfo.avatar = response.data.url
+        userInfo.avatar = response.data.avatar
         
         this.setData({ userInfo })
         app.globalData.userInfo = userInfo
+        storage.setUserInfo(userInfo)
         
         wx.showToast({
           title: '头像更新成功',

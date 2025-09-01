@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/auth/login/login",
     "pages/user/profile/profile",
+    "pages/user/edit-profile/edit-profile",
     "pages/user/orders/orders",
     "pages/user/order-detail/order-detail",
     "pages/user/create-order/create-order",

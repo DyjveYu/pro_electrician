@@ -12,7 +12,7 @@ const {
   logout
 } = require('../controllers/authController');
 const { authMiddleware, optionalAuth } = require('../middleware/auth');
-const { uploadAvatar } = require('../middleware/upload');
+const { uploadAvatar, upload } = require('../middleware/upload');
 
 /**
  * @route POST /api/auth/wechat-login
@@ -94,6 +94,39 @@ router.post('/upload-avatar', authMiddleware, uploadAvatar, async (req, res) => 
     res.status(500).json({
       success: false,
       message: '头像上传失败',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route POST /api/auth/upload-image
+ * @desc 通用图片上传
+ * @access Private
+ */
+router.post('/upload-image', authMiddleware, upload.array('images', 9), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: '请选择图片文件'
+      });
+    }
+
+    // 获取上传的文件路径
+    const imageUrls = req.files.map(file => file.savedPath);
+
+    res.json({
+      success: true,
+      message: '图片上传成功',
+      data: {
+        urls: imageUrls
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '图片上传失败',
       error: error.message
     });
   }

@@ -30,6 +30,12 @@ class SocketIOClient {
    * 连接Socket.IO服务器
    */
   connect() {
+    // 检查WebSocket是否启用
+    if (!config.WEBSOCKET.ENABLED) {
+      console.log('WebSocket已禁用，跳过连接');
+      return;
+    }
+    
     if (this.socket && this.isConnected) {
       console.log('Socket.IO已连接');
       return;
@@ -41,14 +47,23 @@ class SocketIOClient {
       return;
     }
 
-    // Socket.IO连接URL格式 - 使用HTTP端口，Socket.IO会自动处理协议升级
-    const url = `ws://localhost:3000/socket.io/?EIO=4&transport=websocket&token=${token}`;
+    // Socket.IO连接URL格式 - 修正为正确的Socket.IO WebSocket URL
+    const baseUrl = config.API_BASE_URL.replace('http://', '').replace('https://', '');
+    // 根据API基础地址选择协议
+    const protocol = config.API_BASE_URL.startsWith('https') ? 'wss://' : 'ws://';
+    const url = `${protocol}${baseUrl}/socket.io/?EIO=4&transport=websocket&token=${encodeURIComponent(token)}`;
     
-    console.log('正在连接Socket.IO:', url);
+    console.log('尝试连接Socket.IO:', url);
 
     this.socket = wx.connectSocket({
       url,
-      protocols: ['websocket']
+      protocols: ['websocket'],
+      timeout: 10000, // 10秒连接超时
+      header: {
+        'content-type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      tcpNoDelay: true // 禁用Nagle算法，减少延迟
     });
 
     this.socket.onOpen(() => {
@@ -62,6 +77,33 @@ class SocketIOClient {
 
     this.socket.onClose((res) => {
       console.log('Socket.IO连接关闭:', res);
+      // 记录更详细的关闭原因
+      if (res.code === 1000) {
+        console.log('正常关闭连接');
+      } else if (res.code === 1001) {
+        console.log('终端离开导致连接关闭');
+      } else if (res.code === 1002) {
+        console.log('协议错误导致连接关闭');
+      } else if (res.code === 1003) {
+        console.log('收到不可接受的数据导致连接关闭');
+      } else if (res.code === 1005) {
+        console.log('没有收到预期的状态码导致连接关闭');
+      } else if (res.code === 1006) {
+        console.log('异常关闭连接');
+      } else if (res.code === 1007) {
+        console.log('收到不一致的消息类型导致连接关闭');
+      } else if (res.code === 1008) {
+        console.log('违反策略导致连接关闭');
+      } else if (res.code === 1009) {
+        console.log('消息过大导致连接关闭');
+      } else if (res.code === 1010) {
+        console.log('客户端请求扩展但服务器不支持导致连接关闭');
+      } else if (res.code === 1011) {
+        console.log('服务器遇到意外情况导致连接关闭');
+      } else if (res.code === 1015) {
+        console.log('TLS握手失败导致连接关闭');
+      }
+      
       this.isConnected = false;
       this.sessionId = null;
       this.stopHeartbeat();
@@ -240,6 +282,10 @@ class SocketIOClient {
       case 'connected':
         console.log('服务器确认连接:', data);
         break;
+      case 'auth_success':
+        console.log('认证成功:', data);
+        // 认证成功后，可以执行其他初始化操作
+        break;
       case 'order_status_changed':
         this.handleOrderStatusChanged(data);
         break;
@@ -265,7 +311,7 @@ class SocketIOClient {
    */
   handlePing() {
     // 响应PONG
-    this.sendRaw('3');
+    this.sendRaw('3'); // 发送Engine.IO PONG消息
   }
 
   /**
@@ -293,7 +339,7 @@ class SocketIOClient {
     }
 
     try {
-      this.socket.send({ data });
+      this.socket.send(data);
       return true;
     } catch (error) {
       console.error('发送原始消息失败:', error);
@@ -406,11 +452,20 @@ class SocketIOClient {
     }
 
     this.clearReconnectTimer();
+    
+    // 使用指数退避策略计算重连间隔
+    const backoffTime = Math.min(
+      config.WS_CONFIG.RECONNECT_INTERVAL * Math.pow(1.5, this.reconnectAttempts),
+      30000 // 最大30秒
+    );
+    
+    console.log(`将在 ${backoffTime}ms 后尝试重连`);
+    
     this.reconnectTimer = setTimeout(() => {
       console.log(`尝试重连 (${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
       this.reconnectAttempts++;
       this.connect();
-    }, this.reconnectInterval);
+    }, backoffTime);
   }
 
   /**
@@ -581,7 +636,12 @@ class SocketIOClient {
    * 发送消息 (兼容原有API)
    */
   send(data) {
-    if (typeof data === 'object' && data.type) {
+    // 如果是字符串类型且是PONG消息，直接发送原始消息
+    if (typeof data === 'string' && data === '3') {
+      return this.sendRaw(data);
+    }
+    // 处理对象类型消息
+    else if (typeof data === 'object' && data.type) {
       return this.emit(data.type, data.payload || data.data);
     } else {
       return this.emit('message', data);

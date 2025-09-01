@@ -14,7 +14,7 @@ const config = {
   WX_APP_ID: 'wx5aa758717e06fc40',
   
   // 地图配置
-  MAP_KEY: 'your-map-key',
+  MAP_KEY: 'VT7BZ-ZYS6J-Y4NFX-X6CGG-OHYWJ-TGBVF',
   
   // 文件上传配置
   UPLOAD: {
@@ -187,7 +187,19 @@ const config = {
     // 是否显示日志
     SHOW_LOG: true,
     // 是否启用mock数据
-    ENABLE_MOCK: false
+    ENABLE_MOCK: true
+  },
+  
+  // WebSocket配置
+  WEBSOCKET: {
+    // 是否启用WebSocket
+    ENABLED: true,
+    // 连接超时时间
+    CONNECT_TIMEOUT: 10000,
+    // 重连间隔
+    RECONNECT_INTERVAL: 3000,
+    // 最大重连次数
+    MAX_RECONNECT_ATTEMPTS: 5
   }
 };
 
